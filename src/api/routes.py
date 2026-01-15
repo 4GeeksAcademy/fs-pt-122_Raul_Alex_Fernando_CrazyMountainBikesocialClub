@@ -2,7 +2,7 @@
 This module takes care of starting the API Server, Loading the DB and Adding the endpoints
 """
 from flask import Flask, request, jsonify, url_for, Blueprint
-from api.models import db, User
+from api.models import db, User, Bike, BikePart
 from api.utils import generate_sitemap, APIException, is_valid_email
 from flask_cors import CORS
 from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity
@@ -62,14 +62,14 @@ def login():
     if not user or not user.check_password(password):
         return jsonify({"msg": "Bad credentials"}), 401
 
-    token = create_access_token(identity=user.id)
+    token = create_access_token(identity=str(user.id))
     return jsonify({"token": token, "user": user.serialize()}), 200
 
 
 @api.route("/home", methods=["GET"])
 @jwt_required()
 def home():
-    user_id = get_jwt_identity()
+    user_id = int(get_jwt_identity())
     user = User.query.get(user_id)
 
     if not user:
@@ -106,9 +106,63 @@ def home():
 @api.route("/profile", methods=["GET"])
 @jwt_required()
 def profile():
-    user_id = get_jwt_identity()
+    user_id = int(get_jwt_identity())
     user = User.query.get(user_id)
     if not user:
         return jsonify({"msg": "User not found"}), 404
 
     return jsonify({"msg": "Access granted", "user": user.serialize()}), 200
+
+@api.route("/bikes", methods=["POST"])
+@jwt_required()
+def create_bike():
+    user_id = int(get_jwt_identity())
+    user = User.query.get(user_id)
+    if not user:
+        return jsonify({"msg": "User not found"}), 404
+
+    body = request.get_json(silent=True) or {}
+    name = (body.get("name") or "").strip()
+    model = body.get("model")
+    specs = body.get("specs")
+    image_url = body.get("image_url")
+    video_url = body.get("video_url")
+    parts = body.get("parts") or []
+
+    if not name:
+        return jsonify({"msg": "Name is required"}), 400
+
+    bike = Bike(
+        user_id=user.id,
+        name=name,
+        model=model,
+        specs=specs,
+        image_url=image_url,
+        video_url=video_url,
+        is_active=False,
+    )
+    db.session.add(bike)
+    db.session.flush()
+
+    for p in parts:
+        part = BikePart(
+            bike_id=bike.id,
+            part_name=p.get("part_name"),
+            brand=p.get("brand"),
+            model=p.get("model"),
+            km_life=p.get("km_life") or 0,
+            km_current=p.get("km_current") or 0,
+            wear_percentage=p.get("wear_percentage") or 0,
+        )
+        db.session.add(part)
+
+    db.session.commit()
+    return jsonify(bike.serialize()), 201
+
+
+@api.route("/bikes", methods=["GET"])
+@jwt_required()
+def get_bikes():
+    user_id = int(get_jwt_identity())
+    bikes = Bike.query.filter_by(user_id=user_id).all()
+    return jsonify([b.serialize() for b in bikes]), 200
