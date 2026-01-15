@@ -1,4 +1,4 @@
-import "../../../styles/featuredRoutes.css";
+import "../../styles/featuredRoutes.css";
 
 const FeaturedRoutes = () => {
   return (

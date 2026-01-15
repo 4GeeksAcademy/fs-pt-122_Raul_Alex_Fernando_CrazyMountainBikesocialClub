@@ -1,13 +1,13 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-import "../../styles/home.css";
+import "../styles/home.css";
 
-import WeeklyKms from "../component/Home/WeeklyKms";
-import StartRouteButton from "../component/Home/StartRouteButton";
-import FeaturedRoutes from "../component/Home/FeaturedRoutes";
-import FriendsActivity from "../component/Home/FriendsActivity";
-import MaintenanceCard from "../component/Maintenance/MaintenanceCard";
+import WeeklyKms from "../components/Home/WeeklyKms";
+import StartRouteButton from "../components/Home/StartRouteButton";
+import FeaturedRoutes from "../components/Home/FeaturedRoutes";
+import FriendsActivity from "../components/Home/FriendsActivity";
+import MaintenanceCard from "../components/Maintenance/MaintenanceCard";
 
 const Home = () => {
   const navigate = useNavigate();
@@ -20,7 +20,7 @@ const Home = () => {
       return;
     }
 
-    
+
     setLoading(false);
   }, [navigate]);
 

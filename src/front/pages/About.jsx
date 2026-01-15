@@ -1,13 +1,13 @@
 
 import React from "react";
 import { Link } from "react-router-dom";
-import "../../styles/about.css";
+import "../styles/about.css";
 
-import trailLogo from "../../../assets/trail.png";
-import twitterIcon from "../../../assets/twitter.png";
-import instagramIcon from "../../../assets/instagram.png";
-import youtubeIcon from "../../../assets/youtube.png";
-import linkedinIcon from "../../../assets/linkedin.png";
+import trailLogo from "../assets/trail.png";
+import twitterIcon from "../assets/twitter.png";
+import instagramIcon from "../assets/instagram.png";
+import youtubeIcon from "../assets/youtube.png";
+import linkedinIcon from "../assets/linkedin.png";
 
 export const About = () => {
   return (

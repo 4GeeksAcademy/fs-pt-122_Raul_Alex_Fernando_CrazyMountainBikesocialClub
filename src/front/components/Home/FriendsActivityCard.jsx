@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router-dom";
-import "../../../styles/friendsActivity.css";
+import "../../styles/friendsActivity.css";
 
 const FriendsActivityCard = ({ routeId, avatar, name, action, time, distance, duration, mapPreview}) => {
     const navigate = useNavigate();

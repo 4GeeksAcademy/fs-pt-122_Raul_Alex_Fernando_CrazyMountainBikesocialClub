@@ -1,7 +1,7 @@
-import ProfileHeader from "../component/Profile/ProfileHeader";
-import Stats from "../component/Profile/Stats";
-import Maintenance from "../component/Maintenance/MaintenanceCard";
-import Garage from "../component/Profile/Garage";
+import ProfileHeader from "../components/Profile/ProfileHeader";
+import Stats from "../components/Profile/Stats";
+import Maintenance from "../components/Maintenance/MaintenanceCard";
+import Garage from "../components/Profile/Garage";
 
 
 const Profile = () => {
@@ -11,7 +11,7 @@ const Profile = () => {
                 <ProfileHeader />
                 <Stats />
                 <Garage />
-                <Maintenance 
+                <Maintenance
                     showTitle={true}
                     showActionButton={true}
                 />

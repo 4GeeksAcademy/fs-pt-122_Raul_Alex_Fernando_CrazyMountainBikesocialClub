@@ -1,4 +1,4 @@
-import "../../../styles/friendsActivity.css";
+import "../../styles/friendsActivity.css";
 import FriendsActivityCard from "./FriendsActivityCard";
 
 const FriendsActivity = () => {

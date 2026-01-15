@@ -1,5 +1,4 @@
-import { data } from "react-router-dom";
-import "../../../styles/maintenance.css";
+import "../../styles/maintenance.css";
 
 const MaintenanceCard = () => ({
     title = "Seguimiento de mantenimiento",
@@ -18,21 +17,21 @@ const MaintenanceCard = () => ({
             <div className="bar">
                 <span>Llantas</span>
                 <div className="progress">
-                    <div className="ok" style={{ width: `${data.llantas}%`}} />
+                    <div className="ok" style={{ width: `${data.llantas}%` }} />
                 </div>
             </div>
 
             <div className="bar">
                 <span>Frenos</span>
                 <div className="progress">
-                    <div className="warn" style={{ width: `${data.frenos}%`}} />
+                    <div className="warn" style={{ width: `${data.frenos}%` }} />
                 </div>
             </div>
 
             <div className="bar">
                 <span>Cadena</span>
                 <div className="progress">
-                    <div className="bad" style={{ width: `${data.cadena}%`}} />
+                    <div className="bad" style={{ width: `${data.cadena}%` }} />
                 </div>
             </div>
 

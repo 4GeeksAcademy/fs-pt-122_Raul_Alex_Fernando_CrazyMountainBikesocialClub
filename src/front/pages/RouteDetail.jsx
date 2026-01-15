@@ -1,5 +1,5 @@
 import { useParams, useNavigate } from "react-router-dom";
-import "../../styles/routeDetail.css";
+import "../styles/routeDetail.css";
 
 const RouteDetail = () => {
     const { routeId } = useParams();

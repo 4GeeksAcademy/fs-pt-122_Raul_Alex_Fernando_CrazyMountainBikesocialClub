@@ -1,3 +1,7 @@
+import google from '../../assets/google.svg'
+import facebook from '../../assets/facebook.svg'
+import apple from '../../assets/apple.svg'
+
 const SocialLogin = () => {
     return (
         <div className="social-login">
@@ -5,15 +9,15 @@ const SocialLogin = () => {
 
             <div className="social-buttons">
                 <button>
-                    <img src="./src/assets/google.svg" alt="Google icon" width="20" height="20" />
+                    <img src={google} alt="Google icon" width="20" height="20" />
                     Google
                 </button>
                 <button>
-                    <img src="./src/assets/facebook.svg" alt="Facebook icon" width="20" height="20" />
+                    <img src={facebook} alt="Facebook icon" width="20" height="20" />
                     Facebook
                 </button>
                 <button>
-                    <img src="./src/assets/apple.svg" alt="Apple icon" width="20" height="20" />
+                    <img src={apple} alt="Apple icon" width="20" height="20" />
                     Apple
                 </button>
             </div>

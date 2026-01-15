@@ -1,8 +1,8 @@
-import "../../styles/login.css";
-import SignupHeader from "../component/Signup/SignupHeader";
-import SignupForm from "../component/Signup/SignupForm";
-import SocialSignup from "../component/Signup/SocialSignup";
-import SignupFooter from "../component/Signup/SignupFooter";
+import "../styles/login.css";
+import SignupHeader from "../components/Signup/SignupHeader";
+import SignupForm from "../components/Signup/SignupForm";
+import SocialSignup from "../components/Signup/SocialSignup";
+import SignupFooter from "../components/Signup/SignupFooter";
 
 export const Signup = () => {
   return (
