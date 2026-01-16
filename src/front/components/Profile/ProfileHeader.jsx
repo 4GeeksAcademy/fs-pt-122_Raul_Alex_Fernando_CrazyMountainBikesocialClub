@@ -1,7 +1,7 @@
 import { useState } from "react";
-import "../../styles/header.css";
-import SettingsDropdown from "./SettingsDropdown";
 import { useNavigate } from "react-router-dom";
+import SettingsDropdown from "./SettingsDropdown";
+import "../../styles/header.css";
 
 const ProfileHeader = () => {
   const [open, setOpen] = useState(false);
@@ -25,14 +25,30 @@ const ProfileHeader = () => {
           <span>Ponferrada, ES</span>
         </div>
       </div>
-      <div className="settings-wrapper">
+
+      <div className="profile-actions">
+       
+        <div className="settings-wrapper">
+          <button
+            className="icon-btn tooltip"
+            data-tooltip="Opciones"
+            onClick={() => setOpen((prev) => !prev)}
+            aria-label="Opciones de usuario"
+          >
+            ⚙️
+          </button>
+
+          {open && <SettingsDropdown />}
+        </div>
+
         <button
-          className="settings-btn"
-          onClick={() => setOpen(!open)}
+          className="icon-btn tooltip"
+          data-tooltip="Cerrar sesión"
+          onClick={handleLogout}
+          aria-label="Cerrar sesión"
         >
-          ⚙️
+          ⏻
         </button>
-        {open && <SettingsDropdown onLogout={handleLogout} />}
       </div>
     </header>
   );

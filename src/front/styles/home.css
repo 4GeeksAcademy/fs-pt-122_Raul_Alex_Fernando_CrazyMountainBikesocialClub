@@ -1,7 +1,84 @@
 .home {
-   padding-bottom: 80px; /* para el bottom nav */
+    min-height: 100vh;
+    background: linear-gradient(
+      180deg,
+      var(--blue-dark) 0%,
+      #081521 100%
+    );
+    display: flex;
+    justify-content: center;
+    padding-bottom: 90px;
 }
 
 .home-content {
-   padding: 16px;
+    width: 100%;
+    max-width: 1200px; /* límite desktop */
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+.home-header {
+    width: 100%;
+    max-width: 1200px;
+    padding: 12px 16px;
+
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    color: var(--beige);
+}
+
+.home-left {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.home-icon {
+    font-size: 1.2rem;
+}
+
+.home-title {
+    font-size: 1.1rem;
+    font-weight: 600;
+}
+
+.home-actions {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.user-avatar img {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    border: 2px solid var(--yellow-1);
+}
+
+.logout-btn {
+    background: none;
+    border: none;
+    color: var(--yellow-1);
+    font-size: 1.2rem;
+    cursor: pointer;
+}
+
+.logout-btn:hover {
+    opacity: 0.8;
+}
+
+
+/*      AVATAR    */
+
+.user-avatar {
+    cursor: pointer;
+    transition: transform 0.15s ease;
+}
+
+.user-avatar:hover {
+    transform: scale(1.05);
 }
