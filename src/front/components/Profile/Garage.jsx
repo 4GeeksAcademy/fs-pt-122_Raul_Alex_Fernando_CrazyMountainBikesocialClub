@@ -1,30 +1,60 @@
+import { useEffect, useState } from "react";
 import BikeCard from "./BikeCard";
+import AddBikeModal from "./AddBikeModal";
 import "../../styles/garage.css";
 
 const Garage = () => {
+  const [bikes, setBikes] = useState([]);
+  const [openModal, setOpenModal] = useState(false);
+
+  useEffect(() => {
+    const fetchBikes = async () => {
+      const token = localStorage.getItem("token");
+      const res = await fetch(
+        import.meta.env.VITE_BACKEND_URL + "/api/bikes",
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+      if (!res.ok) return;
+      const data = await res.json();
+      setBikes(data);
+    };
+    fetchBikes();
+  }, []);
+
+  const handleBikeCreated = (bike) => {
+    setBikes(prev => [...prev, bike]);
+  };
+
   return (
     <section className="garage">
       <div className="garage-header">
         <h2>Mi Garaje</h2>
-        <button className="add-bike">+ Añadir Bici</button>
+        <button className="add-bike" onClick={() => setOpenModal(true)}>
+          + Añadir Bici
+        </button>
       </div>
 
       <div className="garage-list">
-        <BikeCard
-          active
-          name="Santa Cruz Nomad CC"
-          specs="SRAM X01 Eagle · Fox 38 Factory"
-          km="842 km registrados"
-          image="https://encrypted-tbn2.gstatic.com/shopping?q=tbn:ANd9GcSdqF8m2lv7_IwdvWLwJw48JM-CVj1eaxX46P_Pk2dWjVicbQ64_X1fxmvny4F6AkePOlaoh2BKg2R1RJex4s5o4R6TsacX63bNjE9dTJjs_ci38J8MTQ6I"
-        />
-
-        <BikeCard
-          name="Specialized Diverge"
-          specs="GRX 800 · Carbon Wheels"
-          km="1.520 km registrados"
-          image="https://www.canyon.com/dw/image/v2/BCML_PRD/on/demandware.static/-/Library-Sites-canyon-shared/default/dwde406811/images/blog/articles/blog-gravel-bike-groupset-explained-imahe-main.jpg?sw=503&sfrm=jpg&q=80"
-        />
+        {bikes.map(bike => (
+          <BikeCard
+            key={bike.id}
+            active={bike.is_active}
+            name={bike.name}
+            specs={bike.specs}
+            km={`${bike.km_total} km registrados`}
+            image={bike.image_url}
+          // podrías pasar bike.parts para un modal de detalles
+          />
+        ))}
       </div>
+
+      <AddBikeModal
+        open={openModal}
+        onClose={() => setOpenModal(false)}
+        onBikeCreated={handleBikeCreated}
+      />
     </section>
   );
 };

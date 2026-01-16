@@ -1,8 +1,10 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 
 import "../styles/home.css";
 
+import SettingsDropdown from "../components/Profile/SettingsDropdown";
 import WeeklyKms from "../components/Home/WeeklyKms";
 import StartRouteButton from "../components/Home/StartRouteButton";
 import FeaturedRoutes from "../components/Home/FeaturedRoutes";

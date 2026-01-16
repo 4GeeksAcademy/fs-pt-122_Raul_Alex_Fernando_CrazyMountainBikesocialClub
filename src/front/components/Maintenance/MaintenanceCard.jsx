@@ -1,6 +1,6 @@
 import "../../styles/maintenance.css";
 
-const MaintenanceCard = () => ({
+const MaintenanceCard = ({
     title = "Seguimiento de mantenimiento",
     showTitle = true,
     showActionButton = false,

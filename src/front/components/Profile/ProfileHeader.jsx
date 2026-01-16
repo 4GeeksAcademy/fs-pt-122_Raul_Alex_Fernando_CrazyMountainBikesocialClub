@@ -11,7 +11,6 @@ const ProfileHeader = () => {
     localStorage.clear();
     navigate("/login");
   };
-
   return (
     <header className="profile-header">
       <div className="profile-left">

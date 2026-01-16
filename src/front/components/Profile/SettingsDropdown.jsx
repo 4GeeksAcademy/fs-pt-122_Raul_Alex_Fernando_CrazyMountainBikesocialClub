@@ -1,19 +1,13 @@
-import { useNavigate } from "react-router-dom";
 import "../../styles/header.css";
 
-const SettingsDropdown = () => {
-    const navigate = useNavigate();
-
-    const logout = () => {
-        localStorage.removeItem("token");
-        navigate("/login");
-    };
-
+const SettingsDropdown = ({ onLogout }) => {
     return (
         <div className="settings-dropdown">
-            <button onClick={logout}>Cerrar sesión</button>
+            <button onClick={onLogout} className="logout-btn">
+                Cerrar sesión
+            </button>
         </div>
     );
 };
 
-export default SettingsDropdown
+export default SettingsDropdown;
