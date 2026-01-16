@@ -25,30 +25,23 @@ const ProfileHeader = () => {
           <span>Ponferrada, ES</span>
         </div>
       </div>
-
+      <div
+        className="home-left clickable"
+        onClick={() => navigate("/home")}
+      >
+        <span className="home-icon">🏠</span>
+        <span className="home-title">Inicio</span>
+      </div>
       <div className="profile-actions">
-       
         <div className="settings-wrapper">
           <button
-            className="icon-btn tooltip"
-            data-tooltip="Opciones"
-            onClick={() => setOpen((prev) => !prev)}
-            aria-label="Opciones de usuario"
+            className="settings-btn"
+            onClick={() => setOpen(!open)}
           >
-            ⚙️
+            ⏻
           </button>
-
-          {open && <SettingsDropdown />}
+          {open && <SettingsDropdown onLogout={handleLogout} />}
         </div>
-
-        <button
-          className="icon-btn tooltip"
-          data-tooltip="Cerrar sesión"
-          onClick={handleLogout}
-          aria-label="Cerrar sesión"
-        >
-          ⏻
-        </button>
       </div>
     </header>
   );
