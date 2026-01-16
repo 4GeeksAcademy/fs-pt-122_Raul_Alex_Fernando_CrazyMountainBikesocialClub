@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 
 import "../styles/home.css";
 
@@ -45,6 +46,13 @@ const Home = () => {
     <div className="home">
       <header className="home-header">
         <h1>Inicio</h1>
+        <div>
+          <Link to="/profile">
+            <button className="placeholder-button">
+              Profile
+            </button>
+          </Link>
+        </div>
         <div className="settings-wrapper">
           <SettingsDropdown onLogout={handleLogout} />
         </div>
