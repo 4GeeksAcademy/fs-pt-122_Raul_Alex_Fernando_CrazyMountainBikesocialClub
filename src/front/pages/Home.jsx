@@ -83,7 +83,7 @@ const Home = () => {
           <StartRouteButton />
           <FeaturedRoutes />
           <FriendsActivity />
-          <MaintenanceCard title="Mantenimiento" showTitle={true} showActionButton={false} />
+          <MaintenanceCard showActionButton title="Mantenimiento" showTitle={true} />
           <StartRouteButton />
         </main>
       </div>

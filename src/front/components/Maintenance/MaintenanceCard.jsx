@@ -3,7 +3,7 @@ import "../../styles/maintenance.css";
 const MaintenanceCard = ({
     title = "Seguimiento de mantenimiento",
     showTitle = true,
-    showActionButton = false,
+    showActionButton = true,
     data = {
         llantas: 85,
         frenos: 42,
