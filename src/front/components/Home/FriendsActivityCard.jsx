@@ -19,37 +19,48 @@ const FriendsActivityCard = ({
 
   return (
     <article
-      className="friends-card ui-panel ui-panel--compact clickable"
+      className="friends-card clickable"
       onClick={handleClick}
       role="button"
       tabIndex={0}
     >
-      <img
-        className="friends-avatar"
-        src={avatar}
-        alt={`Avatar de ${name}`}
-      />
+      {/* HEADER */}
+      <div className="friends-header">
+        <img
+          className="friends-avatar"
+          src={avatar}
+          alt={`Avatar de ${name}`}
+        />
 
-      <div className="friends-content">
         <div className="friends-info">
-          <strong className="ui-text">{name}</strong>
+          <strong>{name}</strong>
           <span>{action}</span>
           <small>{time}</small>
         </div>
+      </div>
 
-        <div className="friends-route">
+      {/* RUTA */}
+      <div className="friends-route">
+        <div className="route-info">
+          <strong>Ruta completada</strong>
           <div className="route-meta">
             <span>{distance}</span>
             <span>•</span>
             <span>{duration}</span>
           </div>
-
-          <img
-            className="route-preview"
-            src={mapPreview}
-            alt="Preview ruta"
-          />
         </div>
+
+        <img
+          className="route-preview"
+          src={mapPreview}
+          alt="Preview ruta"
+        />
+      </div>
+
+      {/* FOOTER */}
+      <div className="friends-footer">
+        <span>💛 12 Likes</span>
+        <span>💬 3</span>
       </div>
     </article>
   );

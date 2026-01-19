@@ -10,10 +10,10 @@ export default function StartRouteButton({ className = "" }) {
   return (
     <button
       type="button"
-      className={`start-route-btn ${className}`}
+      className={`ui-btn ui-btn--primary ui-btn--cta ${className}`}
       onClick={handleClick}
     >
-      ▶ Registrar ruta
+      ▶ Iniciar ruta
     </button>
   );
 }

@@ -3,31 +3,30 @@ import Stats from "../components/Profile/Stats";
 import Maintenance from "../components/Maintenance/MaintenanceCard";
 import Garage from "../components/Profile/Garage";
 
-
 const Profile = () => {
-    return (
-        <div className="profile-wrapper">
-            <div className="ui-panel">
-                <ProfileHeader />
-            </div>
+  return (
+    <div className="profile-wrapper">
+      <div className="ui-panel">
+        <ProfileHeader />
+      </div>
 
-            <div className="ui-panel">
-                <Stats />
-            </div>
+      
+      <Stats />
 
-            <div className="ui-panel">
-                <Garage />
-            </div>
-
-            <div className="ui-panel">
-                <Maintenance
-                    showTitle={true}
-                    showActionButton={true}
-                />
-            </div>
-        </div>
-
-    );
+      {/* Garage con panel */}
+      <div className="ui-panel">
+        <Garage />
+      </div>
+      <br></br>
+      {/* Maintenance con panel */}
+      
+        <Maintenance
+          showTitle={true}
+          showActionButton={true}
+        />
+      
+    </div>
+  );
 };
 
 export default Profile;

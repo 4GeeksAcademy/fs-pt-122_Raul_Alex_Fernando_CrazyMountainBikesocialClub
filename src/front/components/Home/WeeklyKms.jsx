@@ -22,11 +22,11 @@ const WeeklyKms = () => {
       {/* GRÁFICO */}
       <div className="weekly-chart">
         <div className="weekly-bars">
-          <div className="weekly-bar muted" />
-          <div className="weekly-bar muted" />
+          <div className="weekly-bar" />
+          <div className="weekly-bar" />
           <div className="weekly-bar active" />
-          <div className="weekly-bar muted" />
-          <div className="weekly-bar muted" />
+          <div className="weekly-bar" />
+          <div className="weekly-bar" />
         </div>
       </div>
 
@@ -37,12 +37,12 @@ const WeeklyKms = () => {
       <div className="weekly-bottom">
         <div>
           <span className="weekly-sub">Desnivel acumulado</span>
-          <strong className="weekly-extra">2.450 m</strong>
+          <strong className="weekly-extra"> 2.450 m</strong>
         </div>
 
         <div className="weekly-record">
           <span className="weekly-sub">Récord personal</span>
-          <strong>84 km/h</strong> máx
+          <strong> 84 km/h</strong> máx
         </div>
       </div>
 

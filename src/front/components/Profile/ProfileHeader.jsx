@@ -11,8 +11,10 @@ const ProfileHeader = () => {
     localStorage.clear();
     navigate("/login");
   };
+
   return (
     <header className="profile-header">
+     
       <div className="profile-left">
         <img
           src="https://ca.slack-edge.com/T0BFXMWMV-U08U5P1CMT8-66334e023a99-512"
@@ -25,14 +27,17 @@ const ProfileHeader = () => {
           <span>Ponferrada, ES</span>
         </div>
       </div>
-      <div
-        className="home-left clickable"
-        onClick={() => navigate("/home")}
-      >
-        <span className="home-icon">🏠</span>
-        <span className="home-title">Inicio</span>
-      </div>
+
+      
       <div className="profile-actions">
+        <div
+          className="profile-home clickable"
+          onClick={() => navigate("/home")}
+        >
+          <span className="home-icon">🏠</span>
+          <span className="home-title">Inicio</span>
+        </div>
+
         <div className="settings-wrapper">
           <button
             className="settings-btn"
@@ -40,6 +45,7 @@ const ProfileHeader = () => {
           >
             ⏻
           </button>
+
           {open && <SettingsDropdown onLogout={handleLogout} />}
         </div>
       </div>

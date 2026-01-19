@@ -79,31 +79,17 @@ const Home = () => {
         </header>
 
         <main className="home-content">
-          <div className="ui-panel">
-            <WeeklyKms />
-          </div>
-
-          <StartRouteButton />
-
-          <div className="ui-panel">
-            <FeaturedRoutes />
-          </div>
-
-          <div className="ui-panel">
-            <FriendsActivity />
-          </div>
-
-          <div className="ui-panel">
-            <MaintenanceCard
-              title="Mantenimiento"
-              showTitle={true}
-              showActionButton={false}
-            />
-          </div>
-
+          <WeeklyKms />
+          <StartRouteButton className="ui-btn--cta" />
+          <FeaturedRoutes />
+          <FriendsActivity />
+          <MaintenanceCard
+            title="Mantenimiento"
+            showTitle={true}
+            showActionButton={false}
+          />
           <StartRouteButton />
         </main>
-
       </div>
     </div>
   );

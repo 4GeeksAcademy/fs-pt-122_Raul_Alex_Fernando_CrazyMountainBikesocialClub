@@ -18,7 +18,6 @@
     display: flex;
     gap: 16px;
     overflow-x: auto;
-    overflow-y: hidden;
     padding-bottom: 12px;
     scroll-snap-type: x mandatory;
 }
@@ -33,11 +32,17 @@
 }
 
 .friends-card {
+    min-width: 300px;
+    max-width: 300px;
+    flex-shrink: 0;
+
+    background: var(--panel-bg);
+    border-radius: 18px;
+    padding: 16px;
+
     display: flex;
     flex-direction: column;
-    gap: 12px;
-
-    overflow: hidden;
+    gap: 16px;
 
     scroll-snap-align: start;
 }
@@ -84,16 +89,21 @@
 
 .friends-route {
     display: flex;
-    flex-direction: column;
-    gap: 8px;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+
+    background: rgba(0, 0, 0, 0.25);
+    border-radius: 12px;
+    padding: 12px;
 }
 
 .route-preview {
-    width: 100%;
-    height: 120px;
+    width: 52px;
+    height: 52px;
+    border-radius: 8px;
     object-fit: cover;
-
-    display: block;
+    flex-shrink: 0;
 }
 
 .route-meta {

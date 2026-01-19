@@ -162,7 +162,7 @@ const AddBikeModal = ({ open, onClose, onBikeCreated }) => {
 
                     <div className="parts-section">
                         <h3>Partes de la bici</h3>
-                        {parts.map((p) => (
+                        {parts.map((p, idx) => (
                             <div key={idx} className="part-row">
                                 <input
                                     type="text"
