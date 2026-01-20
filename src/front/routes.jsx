@@ -9,7 +9,9 @@ import { About } from "./pages/About";
 import Profile from "./pages/Profile";
 import RouteDetail from "./pages/RouteDetail";
 import RouteRegistration from "./pages/RouteRegistration.jsx";
-
+import Explore from "./pages/Explore.jsx";
+import SavedRoutes from "./pages/SavedRoutes.jsx";
+import SavedRouteDetail from "./pages/SavedRouteDetail.jsx";
 
 export const router = createBrowserRouter(
   createRoutesFromElements(
@@ -31,6 +33,11 @@ export const router = createBrowserRouter(
       <Route path="/profile" element={<Profile />} />
       <Route path="/route/:routeId" element={<RouteDetail />} />
       <Route path="/route-registration" element={<RouteRegistration />} />
+      <Route path="/explore" element={<Explore />} />
+      <Route path="saved-routes" element={<SavedRoutes />} />
+      <Route path="saved-routes/:routeId" element={<SavedRouteDetail />} />
+
+      
     </Route>
   )
 );

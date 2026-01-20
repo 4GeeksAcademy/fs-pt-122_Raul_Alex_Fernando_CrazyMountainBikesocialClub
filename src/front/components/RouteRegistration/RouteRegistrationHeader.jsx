@@ -1,6 +1,7 @@
 export default function RouteRegistrationHeader({
   searchValue,
   onSearchChange,
+  onSearchSubmit,
   activeFilter,
   onFilterChange,
 }) {
@@ -14,13 +15,24 @@ export default function RouteRegistrationHeader({
     <div className="rr-header">
       <div className="rr-search">
         <span className="rr-search-icon">⌕</span>
+
         <input
           value={searchValue}
           onChange={(e) => onSearchChange(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") onSearchSubmit?.();
+          }}
           placeholder="Buscar rutas o lugares"
         />
-        <button className="rr-search-btn" type="button" aria-label="Filtros">
-          ☰
+
+        <button
+          className="rr-search-btn"
+          type="button"
+          aria-label="Buscar"
+          title="Buscar"
+          onClick={() => onSearchSubmit?.()}
+        >
+          ↵
         </button>
       </div>
 
@@ -30,7 +42,7 @@ export default function RouteRegistrationHeader({
             key={f.id}
             type="button"
             className={`rr-chip ${activeFilter === f.id ? "active" : ""}`}
-            onClick={() => onFilterChange(f.id)}
+            onClick={() => onFilterChange?.(f.id)}
           >
             {f.label}
           </button>

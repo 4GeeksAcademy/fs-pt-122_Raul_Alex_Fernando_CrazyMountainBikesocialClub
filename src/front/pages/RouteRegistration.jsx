@@ -1,4 +1,5 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { saveRoute } from "../services/routesStorage";
 import useRouteRecorder from "../hooks/useRouteRecorder";
 
 import MapView from "../components/Map/MapView";
@@ -18,6 +19,44 @@ export default function RouteRegistration() {
   
   const { isRecording, points, currentPos, metrics, geojsonLine, toggle, onMapReady, error } =
     useRouteRecorder(mapRef);
+  
+  
+// guardar la ruta cuando se deja de grabar
+
+const prevIsRecording = useRef(false);
+
+useEffect(() => {
+  
+  if (prevIsRecording.current && !isRecording) {
+    const coords = geojsonLine?.geometry?.coordinates;
+
+    
+    if (Array.isArray(coords) && coords.length >= 2) {
+      const makeId = () => {
+        try {
+          return crypto.randomUUID();
+        } catch {
+          return `${Date.now()}-${Math.random().toString(16).slice(2)}`;
+        }
+      };
+
+      saveRoute({
+        id: makeId(),
+        type: "recorded",
+        name: routeName,
+        terrain: activeFilter,
+        distance_km: metrics.distanceKm,
+        duration_min: null,
+        gain_m: metrics.gainM,
+        geojson: geojsonLine,
+        created_at: new Date().toISOString(),
+      });
+    }
+  }
+
+  prevIsRecording.current = isRecording;
+}, [isRecording, geojsonLine, metrics.distanceKm, metrics.gainM, routeName, activeFilter]);
+
 
   return (
     <div className="rr-page">

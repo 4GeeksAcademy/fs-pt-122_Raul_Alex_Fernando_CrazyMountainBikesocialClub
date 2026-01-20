@@ -1,7 +1,36 @@
+import { useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 
-export default function RouteRegistrationBottomNav({ onStart, isRecording }) {
+export default function RouteRegistrationBottomNav({
+  onStart,
+  isRecording = false,
+
+  // NUEVO: si viene, el FAB navega a esa ruta (en vez de ejecutar onStart)
+  fabTo = null,
+
+  // Opcionales para afinar accesibilidad/UX desde cada página
+  fabLabel,
+  fabTitle,
+  fabIcon,
+}) {
   const navigate = useNavigate();
+
+  const computed = useMemo(() => {
+    const defaultLabel = isRecording ? "Detener registro" : "Iniciar";
+    const defaultTitle = isRecording ? "Stop" : "Start";
+    const defaultIcon = isRecording ? "■" : "▶";
+
+    return {
+      label: fabLabel ?? defaultLabel,
+      title: fabTitle ?? defaultTitle,
+      icon: fabIcon ?? defaultIcon,
+    };
+  }, [fabIcon, fabLabel, fabTitle, isRecording]);
+
+  const handleFabClick = () => {
+    if (fabTo) return navigate(fabTo);
+    if (typeof onStart === "function") return onStart();
+  };
 
   return (
     <div className="rr-bottom">
@@ -9,7 +38,7 @@ export default function RouteRegistrationBottomNav({ onStart, isRecording }) {
         <button
           type="button"
           className="rr-nav-item"
-          onClick={() => navigate("/home")}
+          onClick={() => navigate("/explore")}
         >
           EXPLORAR
         </button>
@@ -17,7 +46,7 @@ export default function RouteRegistrationBottomNav({ onStart, isRecording }) {
         <button
           type="button"
           className="rr-nav-item"
-          onClick={() => navigate("/routes")}
+          onClick={() => navigate("/saved-routes")}
         >
           RUTAS
         </button>
@@ -25,11 +54,11 @@ export default function RouteRegistrationBottomNav({ onStart, isRecording }) {
         <button
           type="button"
           className="rr-fab"
-          onClick={onStart}
-          aria-label={isRecording ? "Detener registro" : "Iniciar registro"}
-          title={isRecording ? "Stop" : "Start"}
+          onClick={handleFabClick}
+          aria-label={computed.label}
+          title={computed.title}
         >
-          {isRecording ? "■" : "▶"}
+          {computed.icon}
         </button>
 
         <button
