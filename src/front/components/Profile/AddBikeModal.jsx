@@ -1,6 +1,6 @@
 import { useState, useCallback } from "react";
 import CloudinaryUploadWidget from "../CloudinaryUploadWidget";
-import "../../styles/Profile/addBikeModal.css";
+import "../../styles/Profile/AddBikeModal.css";
 
 const DEFAULT_PART = {
     id: 1,
@@ -11,7 +11,6 @@ const DEFAULT_PART = {
 };
 
 const AddBikeModal = ({ open, onClose, onBikeCreated }) => {
-    
     const [name, setName] = useState("");
     const [model, setModel] = useState("");
     const [specs, setSpecs] = useState("");
@@ -22,7 +21,7 @@ const AddBikeModal = ({ open, onClose, onBikeCreated }) => {
     const imageWidgetConfig = {
         cloudName: "ddx9lg1wd",
         uploadPreset: "upload_preset", // cambia por el tuyo real
-        sources: ["local", "camera"],
+        sources: ["local", "camera", "url", "image_search", "google_drive", "dropbox"],
         multiple: false,
         maxFiles: 1,
         folder: "bikes/images",

@@ -18,7 +18,7 @@ const CloudinaryUploadWidget = ({ uwConfig, setPublicId }) => {
         }
       }
     );
-  }, [uwConfig, setPublicId]);
+  }, []);
 
   const handleClick = (e) => {
     e.preventDefault();
