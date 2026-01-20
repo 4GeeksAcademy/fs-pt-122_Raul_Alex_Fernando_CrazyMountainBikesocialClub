@@ -1,22 +1,20 @@
 import { useEffect, useMemo, useRef, useState } from "react";
+import mapboxgl from "mapbox-gl";
 
 import MapView from "../components/Map/MapView";
 import RouteRegistrationHeader from "../components/RouteRegistration/RouteRegistrationHeader";
 import RouteRegistrationBottomNav from "../components/RouteRegistration/RouteRegistrationBottomNav";
 
 import useRoutePlanner from "../hooks/useRoutePlanner";
-// import { saveRoute } from "../services/routesStorage"; // lo tienes importado pero aún no lo usas
-
-import mapboxgl from "mapbox-gl";
+import { saveRoute } from "../services/routesStorage";
 import { geocodePlace } from "../services/geocoding";
 
 import "../styles/routeRegistration.css";
 
-const STORAGE_KEY_PLANNED = "trail_planned_routes";
-
 export default function Explore() {
   const [searchValue, setSearchValue] = useState("");
   const [searchError, setSearchError] = useState(null);
+  const [savedMsg, setSavedMsg] = useState(null);
 
   const [activeFilter, setActiveFilter] = useState("gravel");
   const [routeName] = useState("Nueva ruta");
@@ -55,15 +53,16 @@ export default function Explore() {
       terrain: activeFilter,
       distance_km: summary.distanceKm,
       duration_min: summary.durationMin,
+      gain_m: null,
       geojson: summary.geojsonLine,
       created_at: new Date().toISOString(),
     };
+    
+    saveRoute(plannedRoute);
 
-    const prev = JSON.parse(localStorage.getItem(STORAGE_KEY_PLANNED) || "[]");
-    localStorage.setItem(
-      STORAGE_KEY_PLANNED,
-      JSON.stringify([plannedRoute, ...prev])
-    );
+    setSavedMsg("Ruta guardada");
+    window.clearTimeout(savePlannedRoute._t);
+    savePlannedRoute._t = window.setTimeout(() => setSavedMsg(null), 1200);
   };
 
   const runSearch = async () => {
@@ -132,10 +131,16 @@ export default function Explore() {
       <div className="rr-coords">Puntos: {waypoints.length}</div>
 
       {searchError && <div className="rr-error">Buscar: {searchError}</div>}
+      {savedMsg && (
+        <div className="rr-coords" style={{ top: 58 }}>
+          {savedMsg}
+        </div>
+      )}
 
       <div className="rr-overlay-cards">
         <div className="rr-card">
           <div className="rr-card-title">{routeName}</div>
+
           <div className="rr-card-subtitle">
             Terreno: {activeFilter.toUpperCase()} · Listo
           </div>

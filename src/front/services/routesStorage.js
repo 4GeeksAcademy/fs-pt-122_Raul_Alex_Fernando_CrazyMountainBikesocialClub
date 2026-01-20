@@ -1,32 +1,29 @@
-// ============================================
-// ROUTES STORAGE SERVICE
-// ============================================
-// ⚠️ TEMPORAL: localStorage
-// 🔁 FUTURO: API REST (Flask)
-// ============================================
+const STORAGE_KEY = "trail_routes"; 
+export function getRoutes() {
+  try {
+    return JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]");
+  } catch {
+    return [];
+  }
+}
 
-const STORAGE_KEY = "trail_routes";
-
-/**
- * Guarda una ruta (planned o recorded)
- */
 export function saveRoute(route) {
-  const prev = JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]");
+  const prev = getRoutes();
   const next = [route, ...prev];
   localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
-  return route;
+  return next; 
 }
 
-/**
- * Devuelve todas las rutas guardadas
- */
-export function getRoutes() {
-  return JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]");
+export function deleteRoute(id) {
+  const prev = getRoutes();
+  const next = prev.filter((r) => r.id !== id);
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
+  return next; 
 }
 
-/**
- * Borra todas las rutas (solo dev)
- */
 export function clearRoutes() {
   localStorage.removeItem(STORAGE_KEY);
+  return [];
 }
+
+export { STORAGE_KEY };

@@ -161,3 +161,16 @@
 .ui-btn.ui-btn--primary.ui-btn--cta {
   font-size: 1.4rem; /* +2–4pt aprox */
 }
+
+
+
+/* 
+   para presentacion mañana para saved routes
+    */
+div[style*="background: white"] {
+  color: #111 !important;
+}
+
+div[style*="background: white"] * {
+  color: inherit !important;
+}

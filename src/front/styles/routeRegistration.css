@@ -102,6 +102,7 @@
   border-radius: 18px;
   padding: 14px 16px;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.18);
+  color: #222; ;
 }
 
 .rr-card-title {
@@ -158,6 +159,7 @@
   align-items: center;
   padding: 10px 10px;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.18);
+  color: #111;
 }
 
 .rr-nav-item {
@@ -165,7 +167,7 @@
   background: transparent;
   font-weight: 800;
   font-size: 12px;
-  opacity: 0.75;
+   opacity: 1;
   cursor: pointer;
 }
 
@@ -180,6 +182,7 @@
   box-shadow: 0 12px 28px rgba(0, 0, 0, 0.25);
   font-size: 22px;
   font-weight: 900;
+  color: #111;
 }
 
 .rr-coords {

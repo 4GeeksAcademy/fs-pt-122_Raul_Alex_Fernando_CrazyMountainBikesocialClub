@@ -1,18 +1,20 @@
 import { useEffect, useMemo, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 
 import RouteRegistrationBottomNav from "../components/RouteRegistration/RouteRegistrationBottomNav";
 import { deleteRoute, getRoutes } from "../services/routesStorage";
 
 export default function SavedRoutes() {
   const navigate = useNavigate();
+  const location = useLocation();
 
   const [routes, setRoutes] = useState([]);
-  const [filter, setFilter] = useState("all"); // all | planned | recorded
+  const [filter, setFilter] = useState("all"); 
 
+  
   useEffect(() => {
     setRoutes(getRoutes());
-  }, []);
+  }, [location.key]);
 
   const filtered = useMemo(() => {
     const sorted = [...routes].sort((a, b) =>
@@ -31,10 +33,21 @@ export default function SavedRoutes() {
 
   return (
     <div style={{ padding: 16, paddingBottom: 92 }}>
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 12 }}>
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          gap: 12,
+        }}
+      >
         <h2 style={{ margin: 0 }}>Saved Routes</h2>
 
-        <select value={filter} onChange={(e) => setFilter(e.target.value)} style={{ padding: 8, borderRadius: 10 }}>
+        <select
+          value={filter}
+          onChange={(e) => setFilter(e.target.value)}
+          style={{ padding: 8, borderRadius: 10 }}
+        >
           <option value="all">All</option>
           <option value="planned">Planned</option>
           <option value="recorded">Recorded</option>
@@ -100,7 +113,6 @@ export default function SavedRoutes() {
         )}
       </div>
 
-      {/* FAB: ir a grabar */}
       <RouteRegistrationBottomNav isRecording={false} fabTo="/route-registration" />
     </div>
   );
