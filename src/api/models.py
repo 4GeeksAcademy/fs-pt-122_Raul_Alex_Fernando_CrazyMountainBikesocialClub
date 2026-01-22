@@ -27,23 +27,53 @@ class User(db.Model):
         }
     bikes = db.relationship("Bike", backref="user", cascade="all, delete-orphan")
 
+from datetime import datetime
+
+class BikeModel(db.Model):
+    """Catálogo de modelos de bicicletas disponibles"""
+    __tablename__ = "bike_models"
+    
+    id = db.Column(db.Integer, primary_key=True)
+    brand = db.Column(db.String(120), nullable=False)
+    model_name = db.Column(db.String(150), nullable=False)
+    model_year = db.Column(db.Integer, nullable=True)
+    bike_type = db.Column(db.String(50), nullable=False)
+    description = db.Column(db.Text, nullable=True)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    
+    def serialize(self):
+        return {
+            "id": self.id,
+            "brand": self.brand,
+            "model_name": self.model_name,
+            "model_year": self.model_year,
+            "bike_type": self.bike_type,
+            "description": self.description,
+            "full_name": f"{self.brand} {self.model_name} ({self.model_year})" if self.model_year else f"{self.brand} {self.model_name}"
+        }
+
 class Bike(db.Model):
     __tablename__ = "bikes"
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
-
-    name = db.Column(db.String(120), nullable=False)   # Nombre que ves en la card
-    model = db.Column(db.String(120), nullable=True)   # Modelo comercial
-    specs = db.Column(db.Text, nullable=True)          # Texto libre
-
+    
+    # NUEVA: Referencia al modelo del catálogo
+    bike_model_id = db.Column(db.Integer, db.ForeignKey("bike_models.id"), nullable=True)
+    
+    name = db.Column(db.String(120), nullable=False)
+    model = db.Column(db.String(120), nullable=True)  # Mantener por compatibilidad
+    specs = db.Column(db.Text, nullable=True)
+    
     image_url = db.Column(db.String(500), nullable=True)
     video_url = db.Column(db.String(500), nullable=True)
-
+    
     km_total = db.Column(db.Integer, default=0)
     is_active = db.Column(db.Boolean, default=False)
-
+    
+    # Relaciones
     parts = db.relationship("BikePart", backref="bike", cascade="all, delete-orphan")
-
+    bike_model = db.relationship("BikeModel", backref="bikes")  # NUEVA
+    
     def serialize(self):
         return {
             "id": self.id,
@@ -54,9 +84,10 @@ class Bike(db.Model):
             "video_url": self.video_url,
             "km_total": self.km_total,
             "is_active": self.is_active,
+            "bike_model_id": self.bike_model_id,  # NUEVO
+            "bike_model": self.bike_model.serialize() if self.bike_model else None,  # NUEVO
             "parts": [p.serialize() for p in self.parts],
         }
-
 
 class BikePart(db.Model):
     __tablename__ = "bike_parts"

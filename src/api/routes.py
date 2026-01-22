@@ -2,15 +2,18 @@
 This module takes care of starting the API Server, Loading the DB and Adding the endpoints
 """
 from flask import Flask, request, jsonify, url_for, Blueprint
-from api.models import db, User, Bike, BikePart
+from api.models import db, User, Bike, BikePart, BikeModel
 from api.utils import generate_sitemap, APIException, is_valid_email
 from flask_cors import CORS
 from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity
 
+
 api = Blueprint('api', __name__)
+
 
 # Allow CORS requests to this API
 CORS(api)
+
 
 
 @api.route('/hello', methods=['POST', 'GET'])
@@ -22,9 +25,11 @@ def handle_hello():
 
     return jsonify(response_body), 200
 
+
 @api.route("/health", methods=["GET"])
 def health():
     return jsonify({"status": "ok"}), 200
+
 
 
 @api.route("/signup", methods=["POST"])
@@ -49,6 +54,7 @@ def signup():
     return jsonify({"msg": "User created"}), 201
 
 
+
 @api.route("/login", methods=["POST"])
 def login():
     body = request.get_json(silent=True) or {}
@@ -64,6 +70,7 @@ def login():
 
     token = create_access_token(identity=str(user.id))
     return jsonify({"token": token, "user": user.serialize()}), 200
+
 
 
 @api.route("/home", methods=["GET"])
@@ -103,6 +110,7 @@ def home():
     }
     return jsonify(home_data), 200
 
+
 @api.route("/profile", methods=["GET"])
 @jwt_required()
 def profile():
@@ -113,6 +121,102 @@ def profile():
 
     return jsonify({"msg": "Access granted", "user": user.serialize()}), 200
 
+
+# ============================================
+# BIKE MODELS ENDPOINTS
+# ============================================
+
+# GET todos los modelos
+@api.route("/bike-models", methods=["GET"])
+@jwt_required()
+def get_bike_models():
+    """Obtiene todos los modelos de bicicletas disponibles"""
+    bike_type = request.args.get("type")
+    
+    query = BikeModel.query
+    
+    if bike_type:
+        query = query.filter_by(bike_type=bike_type)
+    
+    models = query.order_by(BikeModel.brand, BikeModel.model_name).all()
+    return jsonify([m.serialize() for m in models]), 200
+
+
+# SEARCH - Buscar modelos
+@api.route("/bike-models/search", methods=["GET"])
+@jwt_required()
+def search_bike_models():
+    """Busca modelos por término (marca o nombre)"""
+    search_term = request.args.get("q", "").strip()
+    
+    if not search_term or len(search_term) < 2:
+        return jsonify({"msg": "Search term must be at least 2 characters"}), 400
+    
+    search_pattern = f"%{search_term}%"
+    models = BikeModel.query.filter(
+        db.or_(
+            BikeModel.brand.ilike(search_pattern),
+            BikeModel.model_name.ilike(search_pattern)
+        )
+    ).limit(20).all()
+    
+    return jsonify([m.serialize() for m in models]), 200
+
+
+# GET tipos disponibles
+@api.route("/bike-models/types", methods=["GET"])
+@jwt_required()
+def get_bike_types():
+    """Obtiene todos los tipos de bicicleta disponibles"""
+    types = db.session.query(BikeModel.bike_type).distinct().all()
+    return jsonify({"types": [t[0] for t in types]}), 200
+
+
+# POST crear nuevo modelo
+@api.route("/bike-models", methods=["POST"])
+@jwt_required()
+def create_bike_model():
+    """Crea un nuevo modelo de bicicleta (solo admin)"""
+    body = request.get_json(silent=True) or {}
+    
+    brand = (body.get("brand") or "").strip()
+    model_name = (body.get("model_name") or "").strip()
+    bike_type = (body.get("bike_type") or "").strip()
+    model_year = body.get("model_year")
+    description = body.get("description")
+    
+    if not all([brand, model_name, bike_type]):
+        return jsonify({"msg": "Brand, model_name, and bike_type are required"}), 400
+    
+    # Evitar duplicados
+    existing = BikeModel.query.filter_by(
+        brand=brand,
+        model_name=model_name,
+        model_year=model_year
+    ).first()
+    
+    if existing:
+        return jsonify({"msg": "This bike model already exists"}), 409
+    
+    bike_model = BikeModel(
+        brand=brand,
+        model_name=model_name,
+        model_year=model_year,
+        bike_type=bike_type,
+        description=description
+    )
+    
+    db.session.add(bike_model)
+    db.session.commit()
+    
+    return jsonify(bike_model.serialize()), 201
+
+
+# ============================================
+# BIKES ENDPOINTS
+# ============================================
+
+# POST crear bike (ACTUALIZADO con bike_model_id)
 @api.route("/bikes", methods=["POST"])
 @jwt_required()
 def create_bike():
@@ -123,6 +227,7 @@ def create_bike():
 
     body = request.get_json(silent=True) or {}
     name = (body.get("name") or "").strip()
+    bike_model_id = body.get("bike_model_id")  # NUEVO
     model = body.get("model")
     specs = body.get("specs")
     image_url = body.get("image_url")
@@ -132,9 +237,16 @@ def create_bike():
     if not name:
         return jsonify({"msg": "Name is required"}), 400
 
+    # Validar modelo si se proporciona
+    if bike_model_id:
+        bike_model = BikeModel.query.get(bike_model_id)
+        if not bike_model:
+            return jsonify({"msg": "Bike model not found"}), 404
+
     bike = Bike(
         user_id=user.id,
         name=name,
+        bike_model_id=bike_model_id,  # NUEVO
         model=model,
         specs=specs,
         image_url=image_url,
@@ -158,6 +270,7 @@ def create_bike():
 
     db.session.commit()
     return jsonify(bike.serialize()), 201
+
 
 
 @api.route("/bikes", methods=["GET"])
