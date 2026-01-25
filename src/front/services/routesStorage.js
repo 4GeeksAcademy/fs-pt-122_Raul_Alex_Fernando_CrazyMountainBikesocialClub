@@ -14,12 +14,6 @@ export function saveRoute(route) {
   return next; 
 }
 
-export function deleteRoute(id) {
-  const prev = getRoutes();
-  const next = prev.filter((r) => r.id !== id);
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
-  return next; 
-}
 
 export function clearRoutes() {
   localStorage.removeItem(STORAGE_KEY);
