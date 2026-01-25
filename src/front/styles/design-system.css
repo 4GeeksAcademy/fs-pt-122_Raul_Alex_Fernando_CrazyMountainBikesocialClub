@@ -3,6 +3,7 @@
      BACKGROUNDS
      =============================== */
   --bg-main: #020617;
+  --bg-page: var(--bg-main);
   --bg-card: rgba(255, 255, 255, 0.05);
   --bg-card-hover: rgba(255, 255, 255, 0.08);
 
@@ -25,7 +26,7 @@
      BORDES & SOMBRAS
      =============================== */
   --border-soft: rgba(255, 255, 255, 0.1);
-  --shadow-soft: 0 8px 24px rgba(0,0,0,0.25);
+  --shadow-soft: 0 8px 24px rgba(0, 0, 0, 0.25);
 
   /* ===============================
      ESPACIADO
@@ -38,17 +39,9 @@
   /* ===============================
      PANELES
      =============================== */
-  --panel-bg: linear-gradient(
-    180deg,
-    #040b29,
-    #0f1f2e
-  );
+  --panel-bg: linear-gradient(180deg, #040b29, #0f1f2e);
 
-  --panel-bg-hover: linear-gradient(
-    180deg,
-    #1a1b50,
-    #12283a
-  );
+  --panel-bg-hover: linear-gradient(180deg, #1a1b50, #12283a);
 
   /* ===============================
      GRAFICOS
@@ -63,5 +56,3 @@
 
   --chart-bar-highlight: rgba(255, 255, 255, 0.4);
 }
-
- 

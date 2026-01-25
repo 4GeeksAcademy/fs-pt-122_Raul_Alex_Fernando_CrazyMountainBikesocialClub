@@ -4,7 +4,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import MapView from "../components/Map/MapView";
 import RouteRegistrationBottomNav from "../components/RouteRegistration/RouteRegistrationBottomNav";
 import { getRoutes } from "../services/routesStorage";
-//import { boundsFromCoords } from "../utils/mapBounds";
+import { boundsFromCoords } from "../utils/mapBounds";
 
 const SOURCE_ID = "saved-route-src";
 const LAYER_ID = "saved-route-line";
@@ -107,4 +107,3 @@ export default function SavedRouteDetail() {
     </div>
   );
 }
- 
