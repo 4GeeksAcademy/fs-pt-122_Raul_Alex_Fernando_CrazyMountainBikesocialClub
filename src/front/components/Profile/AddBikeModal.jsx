@@ -10,7 +10,7 @@ const DEFAULT_PART = {
     km_life: 0,
 };
 
-const AddBikeModal = ({ open, onClose, onBikeCreated }) => {
+const AddBikeModal = ({ open, onClose, onBikeCreated, onBikeUpdated, existingBike }) => {
     const [name, setName] = useState("");
     const [bikeModelId, setBikeModelId] = useState("");
     const [bikeModels, setBikeModels] = useState([]);
@@ -34,6 +34,52 @@ const AddBikeModal = ({ open, onClose, onBikeCreated }) => {
         folder: "bikes/images",
         resourceType: "image",
     };
+
+    // NUEVO: Cargar datos de la bici existente
+    useEffect(() => {
+        if (open && existingBike) {
+            setName(existingBike.name || "");
+            setBikeModelId(existingBike.bike_model_id || "");
+            setSpecs(existingBike.specs || "");
+            setVideoUrl(existingBike.video_url || "");
+
+            // Extraer el public_id de la URL de Cloudinary
+            if (existingBike.image_url) {
+                const match = existingBike.image_url.match(/\/([^/]+)\.(jpg|png|jpeg)$/);
+                if (match) {
+                    setImagePublicId(match[1]);
+                }
+            }
+
+            // Cargar las partes
+            if (existingBike.parts && existingBike.parts.length > 0) {
+                setParts(existingBike.parts.map(p => ({
+                    id: p.id || Date.now(),
+                    part_name: p.part_name || "",
+                    brand: p.brand || "",
+                    model: p.model || "",
+                    km_life: p.km_life || 0,
+                })));
+            }
+        }
+    }, [open, existingBike]);
+
+    // Cargar modelos al abrir el modal
+    useEffect(() => {
+        if (open) {
+            fetchBikeModels();
+        }
+    }, [open]);
+
+    // Actualizar el término de búsqueda cuando se carga un modelo existente
+    useEffect(() => {
+        if (bikeModelId && bikeModels.length > 0) {
+            const model = bikeModels.find(m => m.id === bikeModelId);
+            if (model) {
+                setModelSearchTerm(model.full_name);
+            }
+        }
+    }, [bikeModelId, bikeModels]);
 
     // Cargar modelos al abrir el modal
     useEffect(() => {
@@ -169,11 +215,12 @@ const AddBikeModal = ({ open, onClose, onBikeCreated }) => {
 
         try {
             const token = localStorage.getItem("token");
+            const isEditing = !!existingBike;
 
             const res = await fetch(
-                import.meta.env.VITE_BACKEND_URL + "/api/bikes",
+                import.meta.env.VITE_BACKEND_URL + `/api/bikes${isEditing ? `/${existingBike.id}` : ""}`,
                 {
-                    method: "POST",
+                    method: isEditing ? "PUT" : "POST",
                     headers: {
                         "Content-Type": "application/json",
                         Authorization: `Bearer ${token}`,
@@ -193,11 +240,17 @@ const AddBikeModal = ({ open, onClose, onBikeCreated }) => {
 
             if (!res.ok) {
                 const errorData = await res.json();
-                throw new Error(errorData.msg || "Error al guardar la bici");
+                throw new Error(errorData.msg || `Error al ${isEditing ? 'actualizar' : 'guardar'} la bici`);
             }
 
-            const newBike = await res.json();
-            onBikeCreated(newBike);
+            const bike = await res.json();
+
+            if (isEditing) {
+                onBikeUpdated(bike);
+            } else {
+                onBikeCreated(bike);
+            }
+
             resetForm();
             onClose();
         } catch (err) {
@@ -221,7 +274,7 @@ const AddBikeModal = ({ open, onClose, onBikeCreated }) => {
         <div className="modal-overlay" onClick={handleClose}>
             <div className="add-bike-modal" onClick={(e) => e.stopPropagation()}>
                 <div className="modal-header">
-                    <h2>Añadir Bicicleta al Garaje</h2>
+                    <h2>{existingBike ? "Editar Bicicleta" : "Añadir Bicicleta al Garaje"}</h2>
                     <button
                         type="button"
                         className="modal-close-btn"
@@ -464,7 +517,10 @@ const AddBikeModal = ({ open, onClose, onBikeCreated }) => {
                             className="btn btn-primary"
                             disabled={loading || !imagePublicId}
                         >
-                            {loading ? "Guardando..." : "Guardar bici"}
+                            {loading
+                                ? (existingBike ? "Actualizando..." : "Guardando...")
+                                : (existingBike ? "Actualizar bici" : "Guardar bici")
+                            }
                         </button>
                     </div>
                 </form>

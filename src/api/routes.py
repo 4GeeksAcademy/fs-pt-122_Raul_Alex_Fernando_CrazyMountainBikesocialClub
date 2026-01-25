@@ -272,10 +272,79 @@ def create_bike():
     return jsonify(bike.serialize()), 201
 
 
-
+# GET get bike
 @api.route("/bikes", methods=["GET"])
 @jwt_required()
 def get_bikes():
     user_id = int(get_jwt_identity())
     bikes = Bike.query.filter_by(user_id=user_id).all()
     return jsonify([b.serialize() for b in bikes]), 200
+
+# DELETE eliminar bike
+@api.route("/bikes/<int:bike_id>", methods=["DELETE"])
+@jwt_required()
+def delete_bike(bike_id):
+    user_id = int(get_jwt_identity())
+    
+    bike = Bike.query.filter_by(id=bike_id, user_id=user_id).first()
+    if not bike:
+        return jsonify({"msg": "Bike not found"}), 404
+    
+    db.session.delete(bike)
+    db.session.commit()
+    
+    return jsonify({"msg": "Bike deleted successfully"}), 200
+
+# PUT actualizar bike
+@api.route("/bikes/<int:bike_id>", methods=["PUT"])
+@jwt_required()
+def update_bike(bike_id):
+    user_id = int(get_jwt_identity())
+    
+    bike = Bike.query.filter_by(id=bike_id, user_id=user_id).first()
+    if not bike:
+        return jsonify({"msg": "Bike not found"}), 404
+    
+    body = request.get_json(silent=True) or {}
+    
+    # Actualizar campos
+    if "name" in body:
+        bike.name = body["name"].strip()
+    
+    if "bike_model_id" in body:
+        bike_model_id = body["bike_model_id"]
+        if bike_model_id:
+            bike_model = BikeModel.query.get(bike_model_id)
+            if not bike_model:
+                return jsonify({"msg": "Bike model not found"}), 404
+            bike.bike_model_id = bike_model_id
+    
+    if "specs" in body:
+        bike.specs = body["specs"]
+    
+    if "image_url" in body:
+        bike.image_url = body["image_url"]
+    
+    if "video_url" in body:
+        bike.video_url = body["video_url"]
+    
+    # Actualizar partes si se envían
+    if "parts" in body:
+        # Eliminar partes antiguas
+        BikePart.query.filter_by(bike_id=bike.id).delete()
+        
+        # Añadir nuevas partes
+        for p in body["parts"]:
+            part = BikePart(
+                bike_id=bike.id,
+                part_name=p.get("part_name"),
+                brand=p.get("brand"),
+                model=p.get("model"),
+                km_life=p.get("km_life") or 0,
+                km_current=p.get("km_current") or 0,
+                wear_percentage=p.get("wear_percentage") or 0,
+            )
+            db.session.add(part)
+    
+    db.session.commit()
+    return jsonify(bike.serialize()), 200

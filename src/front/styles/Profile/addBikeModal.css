@@ -297,6 +297,17 @@
   --color-error-rgb: var(--color-red-500-rgb);
   --color-warning-rgb: var(--color-orange-500-rgb);
   --color-info-rgb: var(--color-slate-500-rgb);
+  --color-app-bg: #0a1929; /* o el azul que prefieras */
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-app-background: #0a1929;
+  }
+}
+
+[data-color-scheme="dark"] {
+  --color-app-background: #0a1929;
 }
 
 /* Base styles */
