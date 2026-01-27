@@ -84,7 +84,7 @@ const Garage = () => {
     <section className="garage">
       <div className="garage-header">
         <h2>Mi Garaje</h2>
-        <button className="add-bike" onClick={() => setOpenModal(true)}>
+        <button className="add-bike ui-btn ui-btn--primary" onClick={() => setOpenModal(true)}>
           + Añadir Bici
         </button>
       </div>

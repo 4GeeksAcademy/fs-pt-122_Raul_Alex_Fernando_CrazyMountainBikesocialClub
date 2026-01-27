@@ -8,6 +8,7 @@ import StartRouteButton from "../components/Home/StartRouteButton";
 import FeaturedRoutes from "../components/Home/FeaturedRoutes";
 import FriendsActivity from "../components/Home/FriendsActivity";
 import MaintenanceCard from "../components/Maintenance/MaintenanceCard";
+import Garage from "../components/Profile/Garage";
 
 
 import { useFetchWithLoader } from "../hooks/useFetchWithLoader";
@@ -15,10 +16,10 @@ import { useFetchWithLoader } from "../hooks/useFetchWithLoader";
 const Home = () => {
   const navigate = useNavigate();
 
-  
+
   const fetchWithLoader = useFetchWithLoader();
 
- 
+
   useEffect(() => {
     const token = localStorage.getItem("token");
     if (!token) {
@@ -26,7 +27,7 @@ const Home = () => {
     }
   }, [navigate]);
 
- 
+
   useEffect(() => {
     const loadData = async () => {
       await fetchWithLoader(
@@ -81,6 +82,9 @@ const Home = () => {
           <WeeklyKms />
           <StartRouteButton className="ui-btn--cta" />
           <FeaturedRoutes />
+          <div className="ui-panel">
+            <Garage />
+          </div>
           <FriendsActivity />
           <MaintenanceCard
             title="Mantenimiento"

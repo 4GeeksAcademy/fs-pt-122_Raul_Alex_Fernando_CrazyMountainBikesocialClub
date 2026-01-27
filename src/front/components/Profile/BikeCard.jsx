@@ -1,33 +1,71 @@
-const BikeCard = ({ name, specs, km, image, active, onEdit, onDelete, onViewDetails }) => {
+const BikeCard = ({
+  name,
+  specs,
+  km,
+  image,
+  active,
+  onEdit,
+  onDelete,
+  onViewDetails,
+}) => {
   return (
-    <div className={`bike-card ${active ? "active" : ""}`}>
-      {active && <span className="badge">Activa</span>}
+    <article
+      className={`bike-card ${active ? "bike-card--active" : ""}`}
+    >
+      {active && <span className="badge badge--active">Activa</span>}
 
-      <img
-        src={image}
-        alt={name}
-        onClick={onViewDetails}
-        style={{ cursor: 'pointer' }}
-      />
+      {/* HEADER: imagen */}
+      <header className="bike-card-header">
+        <button
+          type="button"
+          className="bike-card-image-btn"
+          onClick={onViewDetails}
+          aria-label={`Ver detalles de ${name}`}
+        >
+          {image ? (
+            <img
+              src={image}
+              alt={name}
+              className="bike-card-image"
+            />
+          ) : (
+            <div className="bike-card-image-placeholder">
+              <span>Sin foto</span>
+            </div>
+          )}
+        </button>
+      </header>
 
-      <h3>{name}</h3>
-      <p className="specs">{specs}</p>
+      {/* BODY: texto */}
+      <div className="bike-card-body">
+        <h3 className="bike-card-title">{name}</h3>
+        <p className="bike-card-specs">
+          {specs || "Sin especificaciones"}
+        </p>
+      </div>
 
-      <div className="bike-footer">
-        <span>{km}</span>
+      {/* FOOTER: km + botones */}
+      <footer className="bike-card-footer">
+        <span className="bike-card-km">{km}</span>
         <div className="bike-card-actions">
-          <button onClick={onEdit}>
+          <button
+            type="button"
+            className="ui-btn ui-btn--secondary"
+            onClick={onEdit}
+          >
             {active ? "📋 Detalles" : "✏️ Editar"}
           </button>
           <button
+            type="button"
+            className="ui-btn ui-btn--danger bike-card-delete-btn"
             onClick={onDelete}
             title="Eliminar bici"
           >
             🗑️
           </button>
         </div>
-      </div>
-    </div>
+      </footer>
+    </article>
   );
 };
 

@@ -10,7 +10,13 @@ const DEFAULT_PART = {
     km_life: 0,
 };
 
-const AddBikeModal = ({ open, onClose, onBikeCreated, onBikeUpdated, existingBike }) => {
+const AddBikeModal = ({
+    open,
+    onClose,
+    onBikeCreated,
+    onBikeUpdated,
+    existingBike,
+}) => {
     const [name, setName] = useState("");
     const [bikeModelId, setBikeModelId] = useState("");
     const [bikeModels, setBikeModels] = useState([]);
@@ -28,14 +34,24 @@ const AddBikeModal = ({ open, onClose, onBikeCreated, onBikeUpdated, existingBik
     const imageWidgetConfig = {
         cloudName: "ddx9lg1wd",
         uploadPreset: "upload_preset",
-        sources: ["local", "camera", "url", "image_search", "google_drive", "dropbox", "shutterstock", "istock", "unsplash"],
+        sources: [
+            "local",
+            "camera",
+            "url",
+            "image_search",
+            "google_drive",
+            "dropbox",
+            "shutterstock",
+            "istock",
+            "unsplash",
+        ],
         multiple: false,
         maxFiles: 1,
         folder: "bikes/images",
         resourceType: "image",
     };
 
-    // NUEVO: Cargar datos de la bici existente
+    // Cargar datos de la bici existente
     useEffect(() => {
         if (open && existingBike) {
             setName(existingBike.name || "");
@@ -43,24 +59,38 @@ const AddBikeModal = ({ open, onClose, onBikeCreated, onBikeUpdated, existingBik
             setSpecs(existingBike.specs || "");
             setVideoUrl(existingBike.video_url || "");
 
-            // Extraer el public_id de la URL de Cloudinary
             if (existingBike.image_url) {
-                const match = existingBike.image_url.match(/\/([^/]+)\.(jpg|png|jpeg)$/);
+                const match = existingBike.image_url.match(
+                    /\/([^/]+)\.(jpg|png|jpeg)$/
+                );
                 if (match) {
                     setImagePublicId(match[1]);
                 }
             }
 
-            // Cargar las partes
             if (existingBike.parts && existingBike.parts.length > 0) {
-                setParts(existingBike.parts.map(p => ({
-                    id: p.id || Date.now(),
-                    part_name: p.part_name || "",
-                    brand: p.brand || "",
-                    model: p.model || "",
-                    km_life: p.km_life || 0,
-                })));
+                setParts(
+                    existingBike.parts.map((p) => ({
+                        id: p.id || Date.now(),
+                        part_name: p.part_name || "",
+                        brand: p.brand || "",
+                        model: p.model || "",
+                        km_life: p.km_life || 0,
+                    }))
+                );
             }
+        }
+
+        if (open && !existingBike) {
+            // si abres en modo "nueva bici", asegúrate de formulario limpio
+            setName("");
+            setBikeModelId("");
+            setModelSearchTerm("");
+            setSpecs("");
+            setParts([DEFAULT_PART]);
+            setImagePublicId("");
+            setVideoUrl("");
+            setError("");
         }
     }, [open, existingBike]);
 
@@ -71,24 +101,17 @@ const AddBikeModal = ({ open, onClose, onBikeCreated, onBikeUpdated, existingBik
         }
     }, [open]);
 
-    // Actualizar el término de búsqueda cuando se carga un modelo existente
+    // Actualizar término de búsqueda cuando hay modelo seleccionado
     useEffect(() => {
         if (bikeModelId && bikeModels.length > 0) {
-            const model = bikeModels.find(m => m.id === bikeModelId);
+            const model = bikeModels.find((m) => m.id === bikeModelId);
             if (model) {
                 setModelSearchTerm(model.full_name);
             }
         }
     }, [bikeModelId, bikeModels]);
 
-    // Cargar modelos al abrir el modal
-    useEffect(() => {
-        if (open) {
-            fetchBikeModels();
-        }
-    }, [open]);
-
-    // Filtrar modelos cuando cambia el término de búsqueda
+    // Filtrar modelos
     useEffect(() => {
         if (!modelSearchTerm.trim()) {
             setFilteredModels(bikeModels);
@@ -149,9 +172,7 @@ const AddBikeModal = ({ open, onClose, onBikeCreated, onBikeUpdated, existingBik
 
     const handleChangePart = useCallback((id, field, value) => {
         setParts((prev) =>
-            prev.map((part) =>
-                part.id === id ? { ...part, [field]: value } : part
-            )
+            prev.map((part) => (part.id === id ? { ...part, [field]: value } : part))
         );
     }, []);
 
@@ -207,9 +228,7 @@ const AddBikeModal = ({ open, onClose, onBikeCreated, onBikeUpdated, existingBik
         e.preventDefault();
         setError("");
 
-        if (!validateForm()) {
-            return;
-        }
+        if (!validateForm()) return;
 
         setLoading(true);
 
@@ -218,7 +237,8 @@ const AddBikeModal = ({ open, onClose, onBikeCreated, onBikeUpdated, existingBik
             const isEditing = !!existingBike;
 
             const res = await fetch(
-                import.meta.env.VITE_BACKEND_URL + `/api/bikes${isEditing ? `/${existingBike.id}` : ""}`,
+                `${import.meta.env.VITE_BACKEND_URL}/api/bikes${isEditing ? `/${existingBike.id}` : ""
+                }`,
                 {
                     method: isEditing ? "PUT" : "POST",
                     headers: {
@@ -240,7 +260,10 @@ const AddBikeModal = ({ open, onClose, onBikeCreated, onBikeUpdated, existingBik
 
             if (!res.ok) {
                 const errorData = await res.json();
-                throw new Error(errorData.msg || `Error al ${isEditing ? 'actualizar' : 'guardar'} la bici`);
+                throw new Error(
+                    errorData.msg ||
+                    `Error al ${isEditing ? "actualizar" : "guardar"} la bici`
+                );
             }
 
             const bike = await res.json();
@@ -270,11 +293,14 @@ const AddBikeModal = ({ open, onClose, onBikeCreated, onBikeUpdated, existingBik
 
     const selectedModel = bikeModels.find((m) => m.id === bikeModelId);
 
+
     return (
         <div className="modal-overlay" onClick={handleClose}>
             <div className="add-bike-modal" onClick={(e) => e.stopPropagation()}>
                 <div className="modal-header">
-                    <h2>{existingBike ? "Editar Bicicleta" : "Añadir Bicicleta al Garaje"}</h2>
+                    <h2>
+                        {existingBike ? "Editar Bicicleta" : "Añadir Bicicleta al Garaje"}
+                    </h2>
                     <button
                         type="button"
                         className="modal-close-btn"
@@ -288,239 +314,243 @@ const AddBikeModal = ({ open, onClose, onBikeCreated, onBikeUpdated, existingBik
                 {error && <div className="error-banner">{error}</div>}
 
                 <form onSubmit={handleSubmit} className="bike-form">
-                    {/* NOMBRE DE LA BICI */}
-                    <div className="form-group">
-                        <label htmlFor="bike-name">Nombre de la bici *</label>
-                        <input
-                            id="bike-name"
-                            type="text"
-                            placeholder="Mi bici de montaña"
-                            value={name}
-                            onChange={(e) => setName(e.target.value)}
-                            className="form-input"
-                        />
-                    </div>
-
-                    {/* MODELO DE BICI - SELECT CON BUSQUEDA */}
-                    <div className="form-group">
-                        <label htmlFor="bike-model">Modelo de bicicleta *</label>
-                        <div className="model-search-container">
+                    {/* ZONA SCROLLABLE */}
+                    <div className="bike-form-scroll">
+                        {/* NOMBRE DE LA BICI */}
+                        <div className="form-group">
+                            <label htmlFor="bike-name">Nombre de la bici *</label>
                             <input
-                                id="bike-model"
+                                id="bike-name"
                                 type="text"
-                                placeholder={
-                                    isLoadingModels
-                                        ? "Cargando modelos..."
-                                        : "Busca por marca o modelo (Trek, Specialized...)"
-                                }
-                                value={modelSearchTerm}
-                                onChange={handleModelSearchChange}
-                                onFocus={() => setShowModelDropdown(true)}
-                                className="form-input model-search-input"
-                                disabled={isLoadingModels}
+                                placeholder="Mi bici de montaña"
+                                value={name}
+                                onChange={(e) => setName(e.target.value)}
+                                className="form-input"
                             />
+                        </div>
 
-                            {showModelDropdown && (
-                                <div className="model-dropdown">
-                                    {isLoadingModels ? (
-                                        <div className="dropdown-item loading">
-                                            Cargando modelos...
-                                        </div>
-                                    ) : filteredModels.length === 0 ? (
-                                        <div className="dropdown-item empty">
-                                            No se encontraron modelos
-                                        </div>
-                                    ) : (
-                                        filteredModels.map((model) => (
-                                            <div
-                                                key={model.id}
-                                                className={`dropdown-item ${bikeModelId === model.id ? "selected" : ""
-                                                    }`}
-                                                onClick={() => handleSelectModel(model)}
-                                            >
-                                                <div className="model-info">
-                                                    <strong>{model.brand}</strong>
-                                                    <span className="model-name">
-                                                        {model.model_name}
-                                                    </span>
-                                                </div>
-                                                <div className="model-meta">
-                                                    <span className="bike-type">
-                                                        {model.bike_type}
-                                                    </span>
-                                                    {model.model_year && (
-                                                        <span className="model-year">
-                                                            {model.model_year}
-                                                        </span>
-                                                    )}
-                                                </div>
+                        {/* MODELO DE BICI */}
+                        <div className="form-group">
+                            <label htmlFor="bike-model">Modelo de bicicleta *</label>
+                            <div className="model-search-container">
+                                <input
+                                    id="bike-model"
+                                    type="text"
+                                    placeholder={
+                                        isLoadingModels
+                                            ? "Cargando modelos..."
+                                            : "Busca por marca o modelo (Trek, Specialized...)"
+                                    }
+                                    value={modelSearchTerm}
+                                    onChange={handleModelSearchChange}
+                                    onFocus={() => setShowModelDropdown(true)}
+                                    className="form-input model-search-input"
+                                    disabled={isLoadingModels}
+                                />
+
+                                {showModelDropdown && (
+                                    <div className="model-dropdown">
+                                        {isLoadingModels ? (
+                                            <div className="dropdown-item loading">
+                                                Cargando modelos...
                                             </div>
-                                        ))
-                                    )}
+                                        ) : filteredModels.length === 0 ? (
+                                            <div className="dropdown-item empty">
+                                                No se encontraron modelos
+                                            </div>
+                                        ) : (
+                                            filteredModels.map((model) => (
+                                                <div
+                                                    key={model.id}
+                                                    className={`dropdown-item ${bikeModelId === model.id ? "selected" : ""
+                                                        }`}
+                                                    onClick={() => handleSelectModel(model)}
+                                                >
+                                                    <div className="model-info">
+                                                        <strong>{model.brand}</strong>
+                                                        <span className="model-name">
+                                                            {model.model_name}
+                                                        </span>
+                                                    </div>
+                                                    <div className="model-meta">
+                                                        <span className="bike-type">{model.bike_type}</span>
+                                                        {model.model_year && (
+                                                            <span className="model-year">
+                                                                {model.model_year}
+                                                            </span>
+                                                        )}
+                                                    </div>
+                                                </div>
+                                            ))
+                                        )}
+                                    </div>
+                                )}
+                            </div>
+
+                            {selectedModel && (
+                                <div className="selected-model-info">
+                                    ✓ {selectedModel.brand} {selectedModel.model_name}
+                                    {selectedModel.model_year && ` (${selectedModel.model_year})`}
                                 </div>
                             )}
                         </div>
 
-                        {selectedModel && (
-                            <div className="selected-model-info">
-                                ✓ {selectedModel.brand} {selectedModel.model_name}
-                                {selectedModel.model_year && ` (${selectedModel.model_year})`}
-                            </div>
-                        )}
-                    </div>
-
-                    {/* ESPECIFICACIONES */}
-                    <div className="form-group">
-                        <label htmlFor="bike-specs">Especificaciones</label>
-                        <textarea
-                            id="bike-specs"
-                            placeholder="Ej: Ruedas 29, Suspensión delantera 100mm, Frenos de disco..."
-                            value={specs}
-                            onChange={(e) => setSpecs(e.target.value)}
-                            className="form-textarea"
-                            rows="3"
-                        />
-                    </div>
-
-                    {/* FOTO */}
-                    <div className="form-group">
-                        <label>Foto de la bici *</label>
-                        {!imagePublicId ? (
-                            <div className="upload-widget-container">
-                                <CloudinaryUploadWidget
-                                    uwConfig={imageWidgetConfig}
-                                    setPublicId={setImagePublicId}
-                                />
-                            </div>
-                        ) : (
-                            <div className="bike-image-preview">
-                                <img
-                                    src={`https://res.cloudinary.com/ddx9lg1wd/image/upload/w_400,h_300,c_fill/${imagePublicId}.jpg`}
-                                    alt="Bici"
-                                    className="bike-preview"
-                                />
-                                <button
-                                    type="button"
-                                    className="btn-change-photo"
-                                    onClick={() => setImagePublicId("")}
-                                >
-                                    Cambiar foto
-                                </button>
-                            </div>
-                        )}
-                    </div>
-
-                    {/* VÍDEO (OPCIONAL) */}
-                    <div className="form-group">
-                        <label htmlFor="bike-video">Vídeo (opcional)</label>
-                        <input
-                            id="bike-video"
-                            type="url"
-                            placeholder="https://youtube.com/watch?v=..."
-                            value={videoUrl}
-                            onChange={handleVideoChange}
-                            className="form-input"
-                        />
-                    </div>
-
-                    {/* PARTES */}
-                    <div className="parts-section">
-                        <div className="parts-header">
-                            <h3>Componentes de la bici</h3>
-                            <span className="parts-count">{parts.length}</span>
+                        {/* ESPECIFICACIONES */}
+                        <div className="form-group">
+                            <label htmlFor="bike-specs">Especificaciones</label>
+                            <textarea
+                                id="bike-specs"
+                                placeholder="Ej: Ruedas 29, Suspensión delantera 100mm, Frenos de disco..."
+                                value={specs}
+                                onChange={(e) => setSpecs(e.target.value)}
+                                className="form-textarea"
+                                rows="3"
+                            />
                         </div>
 
-                        <div className="parts-list">
-                            {parts.map((p, index) => (
-                                <div key={p.id} className="part-row">
-                                    <div className="part-number">{index + 1}</div>
-
-                                    <input
-                                        type="text"
-                                        placeholder="Llantas, Frenos, Manillar..."
-                                        value={p.part_name}
-                                        onChange={(e) =>
-                                            handleChangePart(p.id, "part_name", e.target.value)
-                                        }
-                                        className="form-input part-input"
+                        {/* FOTO */}
+                        <div className="form-group">
+                            <label>Foto de la bici *</label>
+                            {!imagePublicId ? (
+                                <div className="upload-widget-container">
+                                    <CloudinaryUploadWidget
+                                        uwConfig={imageWidgetConfig}
+                                        setPublicId={setImagePublicId}
                                     />
-
-                                    <input
-                                        type="text"
-                                        placeholder="Marca"
-                                        value={p.brand}
-                                        onChange={(e) =>
-                                            handleChangePart(p.id, "brand", e.target.value)
-                                        }
-                                        className="form-input part-input"
-                                    />
-
-                                    <input
-                                        type="text"
-                                        placeholder="Modelo"
-                                        value={p.model}
-                                        onChange={(e) =>
-                                            handleChangePart(p.id, "model", e.target.value)
-                                        }
-                                        className="form-input part-input"
-                                    />
-
-                                    <input
-                                        type="number"
-                                        placeholder="Km vida"
-                                        min="0"
-                                        value={p.km_life}
-                                        onChange={(e) =>
-                                            handleChangePart(
-                                                p.id,
-                                                "km_life",
-                                                Number(e.target.value)
-                                            )
-                                        }
-                                        className="form-input part-input km-input"
-                                    />
-
-                                    {parts.length > 1 && (
-                                        <button
-                                            type="button"
-                                            className="btn-remove-part"
-                                            onClick={() => handleRemovePart(p.id)}
-                                            title="Eliminar componente"
-                                        >
-                                            🗑️
-                                        </button>
-                                    )}
                                 </div>
-                            ))}
+                            ) : (
+                                <div className="bike-image-preview">
+                                    <img
+                                        src={`https://res.cloudinary.com/ddx9lg1wd/image/upload/w_400,h_300,c_fill/${imagePublicId}.jpg`}
+                                        alt="Bici"
+                                        className="bike-preview"
+                                    />
+                                    <button
+                                        type="button"
+                                        className="ui-btn ui-btn--primary btn-change-photo"
+                                        onClick={() => setImagePublicId("")}
+                                    >
+                                        Cambiar foto
+                                    </button>
+                                </div>
+                            )}
                         </div>
 
-                        <button
-                            type="button"
-                            className="btn-add-part"
-                            onClick={handleAddPart}
-                        >
-                            + Añadir componente
-                        </button>
+                        {/* VÍDEO */}
+                        <div className="form-group">
+                            <label htmlFor="bike-video">Vídeo (opcional)</label>
+                            <input
+                                id="bike-video"
+                                type="url"
+                                placeholder="https://youtube.com/watch?v=..."
+                                value={videoUrl}
+                                onChange={handleVideoChange}
+                                className="form-input"
+                            />
+                        </div>
+
+                        {/* PARTES */}
+                        <div className="parts-section">
+                            <div className="parts-header">
+                                <h3>Componentes de la bici</h3>
+                                <span className="parts-count">{parts.length}</span>
+                            </div>
+
+                            <div className="parts-list">
+                                {parts.map((p, index) => (
+                                    <div key={p.id} className="part-row">
+                                        <div className="part-number">{index + 1}</div>
+
+                                        <input
+                                            type="text"
+                                            placeholder="Llantas, Frenos, Manillar..."
+                                            value={p.part_name}
+                                            onChange={(e) =>
+                                                handleChangePart(p.id, "part_name", e.target.value)
+                                            }
+                                            className="form-input part-input"
+                                        />
+
+                                        <input
+                                            type="text"
+                                            placeholder="Marca"
+                                            value={p.brand}
+                                            onChange={(e) =>
+                                                handleChangePart(p.id, "brand", e.target.value)
+                                            }
+                                            className="form-input part-input"
+                                        />
+
+                                        <input
+                                            type="text"
+                                            placeholder="Modelo"
+                                            value={p.model}
+                                            onChange={(e) =>
+                                                handleChangePart(p.id, "model", e.target.value)
+                                            }
+                                            className="form-input part-input"
+                                        />
+
+                                        <input
+                                            type="number"
+                                            placeholder="Km vida"
+                                            min="0"
+                                            value={p.km_life}
+                                            onChange={(e) =>
+                                                handleChangePart(
+                                                    p.id,
+                                                    "km_life",
+                                                    Number(e.target.value)
+                                                )
+                                            }
+                                            className="form-input part-input km-input"
+                                        />
+
+                                        {parts.length > 1 && (
+                                            <button
+                                                type="button"
+                                                className="btn-remove-part"
+                                                onClick={() => handleRemovePart(p.id)}
+                                                title="Eliminar componente"
+                                            >
+                                                🗑️
+                                            </button>
+                                        )}
+                                    </div>
+                                ))}
+                            </div>
+
+                            <button
+                                type="button"
+                                className="btn-add-part"
+                                onClick={handleAddPart}
+                            >
+                                + Añadir componente
+                            </button>
+                        </div>
                     </div>
 
-                    {/* ACCIONES */}
+                    {/* FOOTER FIJO */}
                     <div className="modal-actions">
                         <button
                             type="button"
-                            className="btn btn-secondary"
+                            className="ui-btn ui-btn--secondary"
                             onClick={handleClose}
                         >
                             Cancelar
                         </button>
                         <button
                             type="submit"
-                            className="btn btn-primary"
+                            className="ui-btn ui-btn--primary"
                             disabled={loading || !imagePublicId}
                         >
                             {loading
-                                ? (existingBike ? "Actualizando..." : "Guardando...")
-                                : (existingBike ? "Actualizar bici" : "Guardar bici")
-                            }
+                                ? existingBike
+                                    ? "Actualizando..."
+                                    : "Guardando..."
+                                : existingBike
+                                    ? "Actualizar bici"
+                                    : "Guardar bici"}
                         </button>
                     </div>
                 </form>
