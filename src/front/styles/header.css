@@ -1,32 +1,45 @@
 /* ===============================
-   PROFILE HEADER
+   MAIN HEADER (Compartido Home + Profile)
 ================================ */
 
-/* === Container === */
-
-.profile-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: var(--space-lg);
+.main-header {
+  width: 100%;
 }
 
-.profile-header-wrapper {
-  padding: var(--space-sm) var(--space-md);
+.header-inner {
   max-width: 1200px;
   margin: 0 auto;
-  padding-top: var(--space-lg);
-}
-
-/* === Left block === */
-
-.profile-left {
+  padding: var(--space-sm) var(--space-md);
   display: flex;
   align-items: center;
-  gap: var(--space-md);
 }
 
-/* === Avatar === */
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 3rem;
+  flex: 1;
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  margin-left: auto;
+}
+
+.header-text {
+  display: flex;
+  flex-direction: column;
+}
+
+.home-subtitle {
+  margin-top: 4px;
+}
+
+/* ===============================
+   AVATAR
+================================ */
 
 .profile-avatar {
   width: 100px;
@@ -43,114 +56,47 @@
   filter: drop-shadow(0 0 8px rgba(242, 204, 12, 0.8));
 }
 
-/* === Text === */
-
-.profile-header h1 {
-  margin: 0;
-  color: var(--text-primary);
-}
-
-.profile-header span {
-  color: var(--text-secondary);
-  font-size: 0.9rem;
-}
-
-/* === Actions === */
-
-.profile-actions {
-  display: flex;
-  align-items: center;
-  gap: var(--space-sm);
-}
-
-/* === Icon buttons (local, for now) === */
+/* ===============================
+   HOME ICON
+================================ */
 
 .nav-home-icon {
   color: var(--accent-primary);
   font-size: 2rem;
-  opacity: 0.6;
+  opacity: 1;
   cursor: pointer;
   transition: all 0.2s ease;
 }
 
 .nav-home-icon:hover {
-  opacity: 1;
   filter: drop-shadow(0 0 6px rgba(242, 204, 12, 0.6));
   transform: scale(1.1);
 }
 
-/* === Responsive === */
-
-@media (max-width: 768px) {
-  .profile-header h1 {
-    font-size: 1.4rem;
-    line-height: 1.1;
-  }
+.nav-home-icon.active {
+  filter: drop-shadow(0 0 8px rgba(242, 204, 12, 0.8));
 }
 
-/* Contenedor del botón de logout + dropdown */
-.settings-wrapper {
-  position: relative; /* para que el dropdown se ancle aquí */
-  display: flex;
-  align-items: center;
-}
+/* ===============================
+   LOGOUT BUTTON
+================================ */
 
-/* Botón power más elegante */
 .settings-btn {
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  border: 1px solid rgba(255, 255, 255, 0.35);
-  background: rgba(0, 0, 0, 0.35);
-  color: var(--beige);
-  cursor: pointer;
+  width: 2.75rem;
+  height: 2.75rem;
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: background 0.2s ease, transform 0.1s ease, box-shadow 0.2s ease;
 }
 
-.settings-btn:hover {
-  background: rgba(255, 255, 255, 0.08);
-  box-shadow: 0 0 12px rgba(255, 255, 255, 0.25);
-  transform: translateY(-1px);
+.settings-btn .logout-icon {
+  font-size: 2rem;
+  line-height: 1;
+  color: var(--accent-primary);
+  opacity: 1;
 }
 
-/* Dropdown estilizado */
-.settings-dropdown {
-  position: absolute;
-  right: 0;
-  top: 48px; /* justo bajo el botón */
-  background: #0c1a26;
-  border-radius: 12px;
-  overflow: hidden;
-  padding: 4px 0;
-  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.6);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  min-width: 160px;
-  z-index: 10;
-}
-
-.settings-dropdown button {
-  width: 100%;
-  background: none;
-  border: none;
-  padding: 10px 16px;
-  color: var(--beige);
-  cursor: pointer;
-  text-align: left;
-  font-size: 14px;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.settings-dropdown button:hover {
-  background: rgba(255, 255, 255, 0.06);
-}
-
-/* opcional: icono dentro del item */
-.settings-dropdown button::before {
-  content: "⏻";
-  font-size: 14px;
+.settings-btn:hover .logout-icon {
+  transform: scale(1.15);
+  filter: drop-shadow(0 0 6px rgba(242, 204, 12, 0.7));
 }

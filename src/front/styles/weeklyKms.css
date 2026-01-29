@@ -6,7 +6,6 @@
 
 .weekly-kms {
   background: var(--panel-bg);
-  border: 1px solid var(--border-soft);
   border-radius: 20px;
   padding: 20px;
   color: #fff;
