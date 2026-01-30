@@ -3,6 +3,7 @@ import BikeCard from "./BikeCard";
 import AddBikeModal from "./AddBikeModal";
 import BikeDetailModal from "./BikeDetailModal";
 import "../../styles/Profile/garage.css";
+import AiChatDialog from "../AiChatDialog";
 
 const Garage = () => {
   const [bikes, setBikes] = useState([]);
@@ -84,9 +85,12 @@ const Garage = () => {
     <section className="garage">
       <div className="garage-header">
         <h2>Mi Garaje</h2>
-        <button className="add-bike ui-btn ui-btn--primary" onClick={() => setOpenModal(true)}>
-          + Añadir Bici
-        </button>
+        <div className="header-actions">
+          <AiChatDialog floating={false} />
+          <button className="add-bike ui-btn ui-btn--primary" onClick={() => setOpenModal(true)}>
+            + Añadir Bici
+          </button>
+        </div>
       </div>
 
       <div className="garage-list">

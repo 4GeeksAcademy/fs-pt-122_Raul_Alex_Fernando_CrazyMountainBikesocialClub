@@ -23,8 +23,6 @@ export const Layout = () => {
         {!hideHeader && <MainHeader />}
 
         <Outlet />
-        
-        <AiChatDialog floating />
         <Footer />
       </div>
     </>
