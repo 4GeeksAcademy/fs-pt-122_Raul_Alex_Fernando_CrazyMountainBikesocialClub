@@ -47,11 +47,14 @@ export default function MainHeader() {
 
                 <div className="header-actions">
 
-                    <i
-                        className={`fa-solid fa-house nav-home-icon ${variant === "home" ? "active" : ""
-                            }`}
+                    <button
+                        className="settings-btn home-btn"
                         onClick={() => navigate("/home")}
-                    />
+                    >
+                        <i
+                            className={`fa-solid fa-house nav-home-icon ${variant === "home" ? "active" : ""}`}
+                        />
+                    </button>
 
                     <button className="settings-btn" onClick={handleLogout}>
                         <i className="fa-solid fa-power-off logout-icon"></i>
