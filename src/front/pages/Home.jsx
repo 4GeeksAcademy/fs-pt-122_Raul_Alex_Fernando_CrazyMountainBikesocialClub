@@ -8,7 +8,6 @@ import WeeklyKms from "../components/Home/WeeklyKms";
 import StartRouteButton from "../components/Home/StartRouteButton";
 import FeaturedRoutes from "../components/Home/FeaturedRoutes";
 import FriendsActivity from "../components/Home/FriendsActivity";
-import MaintenanceCard from "../components/Maintenance/MaintenanceCard";
 import Garage from "../components/Profile/Garage";
 
 
@@ -58,11 +57,7 @@ const Home = () => {
             <Garage />
           </div>
           <FriendsActivity />
-          <MaintenanceCard
-            title="Mantenimiento"
-            showTitle={true}
-            showActionButton={false}
-          />
+          
          </main>
       </div>
     </div>

@@ -1,3 +1,5 @@
+import MaintenanceCard from "../Maintenance/MaintenanceCard";
+
 const BikeCard = ({
   name,
   specs,
@@ -9,25 +11,19 @@ const BikeCard = ({
   onViewDetails,
 }) => {
   return (
-    <article
-      className={`bike-card ${active ? "bike-card--active" : ""}`}
-    >
+    <article className={`bike-card ${active ? "bike-card--active" : ""}`}>
+
       {active && <span className="badge badge--active">Activa</span>}
 
-      {/* HEADER: imagen */}
+      {/* HEADER */}
       <header className="bike-card-header">
         <button
           type="button"
           className="bike-card-image-btn"
           onClick={onViewDetails}
-          aria-label={`Ver detalles de ${name}`}
         >
           {image ? (
-            <img
-              src={image}
-              alt={name}
-              className="bike-card-image"
-            />
+            <img src={image} alt={name} className="bike-card-image" />
           ) : (
             <div className="bike-card-image-placeholder">
               <span>Sin foto</span>
@@ -36,17 +32,26 @@ const BikeCard = ({
         </button>
       </header>
 
-      {/* BODY: texto */}
+      {/* BODY */}
       <div className="bike-card-body">
         <h3 className="bike-card-title">{name}</h3>
-        <p className="bike-card-specs">
-          {specs || "Sin especificaciones"}
-        </p>
+
+        {specs && (
+          <p className="bike-card-specs">{specs}</p>
+        )}
       </div>
 
-      {/* FOOTER: km + botones */}
+      {/* MANTENIMIENTO */}
+      <MaintenanceCard
+        data={{ llantas: 100, frenos: 100, cadena: 100 }}
+      />
+
+      {/* FOOTER */}
       <footer className="bike-card-footer">
-        <span className="bike-card-km">{km}</span>
+        <span className="bike-card-km">
+          🚴 {km || 0} km registrados
+        </span>
+
         <div className="bike-card-actions">
           <button
             type="button"
@@ -55,16 +60,17 @@ const BikeCard = ({
           >
             {active ? "📋 Detalles" : "✏️ Editar"}
           </button>
+
           <button
             type="button"
             className="ui-btn ui-btn--danger bike-card-delete-btn"
             onClick={onDelete}
-            title="Eliminar bici"
           >
             🗑️
           </button>
         </div>
       </footer>
+
     </article>
   );
 };
