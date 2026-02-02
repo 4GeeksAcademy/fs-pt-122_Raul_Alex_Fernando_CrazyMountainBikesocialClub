@@ -1,45 +1,81 @@
-import "../../styles/maintenance.css";
+import { useState } from "react";
 
 const MaintenanceCard = ({
-    title = "Seguimiento de mantenimiento",
+    title = "Mantenimiento",
     showTitle = true,
     showActionButton = true,
     data = {
         llantas: 85,
         frenos: 42,
         cadena: 12
-    }
+    },
+    onChange
 }) => {
+
+    const [values, setValues] = useState(data);
+
+    const update = (key, val) => {
+        const next = { ...values, [key]: val };
+        setValues(next);
+        onChange?.(next);
+    };
+
+    const getColor = (value) => {
+        if (value > 70) return "#22c55e";
+        if (value > 30) return "#facc15";
+        return "#ef4444";
+    };
+
     return (
-        <section className="maintenance ui-panel">
+        <section className="maintenance">
+
             {showTitle && <h2 className="ui-subtitle">{title}</h2>}
 
-            <div className="bar">
-                <span>Llantas</span>
-                <div className="progress">
-                    <div className="ok" style={{ width: `${data.llantas}%` }} />
-                </div>
-            </div>
+            {[
+                ["Llantas", "llantas"],
+                ["Frenos", "frenos"],
+                ["Cadena", "cadena"]
+            ].map(([label, key]) => (
+                <div
+                    key={key}
+                    className="bar"
+                    style={{
+                        display: "grid",
+                        gridTemplateColumns: "70px 1fr",
+                        alignItems: "center",
+                        gap: 10,
+                        marginBottom: 8
+                    }}
+                >
 
-            <div className="bar">
-                <span>Frenos</span>
-                <div className="progress">
-                    <div className="warn" style={{ width: `${data.frenos}%` }} />
-                </div>
-            </div>
+                    <span style={{ color: "#fff", opacity: 0.85 }}>
+                        {label}
+                    </span>
 
-            <div className="bar">
-                <span>Cadena</span>
-                <div className="progress">
-                    <div className="bad" style={{ width: `${data.cadena}%` }} />
+                    <input
+                        type="range"
+                        min="0"
+                        max="100"
+                        value={values[key]}
+                        onChange={(e) => update(key, Number(e.target.value))}
+                        style={{
+                            appearance: "none",
+                            height: 6,
+                            borderRadius: 6,
+                            background: `linear-gradient(to right,
+                              ${getColor(values[key])} 0%,
+                              ${getColor(values[key])} ${values[key]}%,
+                              rgba(255,255,255,.25) ${values[key]}%,
+                              rgba(255,255,255,.25) 100%)`,
+                            outline: "none"
+                        }}
+                    />
                 </div>
-            </div>
 
-            {showActionButton && (
-                <button className="ui-btn ui-btn--secondary">
-                    Actualizar
-                </button>
-            )}
+            ))}
+
+
+
         </section>
     );
 };
