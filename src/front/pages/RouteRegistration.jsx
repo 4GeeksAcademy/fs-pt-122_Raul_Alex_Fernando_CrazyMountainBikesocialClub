@@ -1,61 +1,68 @@
+import { useNavigate } from "react-router-dom";
 import { useEffect, useRef, useState } from "react";
 import { saveRoute } from "../services/routesStorage";
 import useRouteRecorder from "../hooks/useRouteRecorder";
 
 import MapView from "../components/Map/MapView";
 import RouteRegistrationHeader from "../components/RouteRegistration/RouteRegistrationHeader";
-import RouteRegistrationBottomNav from "../components/RouteRegistration/RouteRegistrationBottomNav";
 
 import "../styles/routeRegistration.css";
 
 export default function RouteRegistration() {
+  const navigate = useNavigate();
   const [searchValue, setSearchValue] = useState("");
   const [activeFilter, setActiveFilter] = useState("gravel");
-  const [routeName] = useState("Nueva ruta");
+  const [routeName] = useState("Ruta");
+  const [routeSaved, setRouteSaved] = useState(false);
 
-  
+
+
   const mapRef = useRef(null);
 
-  
+
   const { isRecording, points, currentPos, metrics, geojsonLine, toggle, onMapReady, error } =
     useRouteRecorder(mapRef);
-  
-  
-// guardar la ruta cuando se deja de grabar
 
-const prevIsRecording = useRef(false);
 
-useEffect(() => {
-  
-  if (prevIsRecording.current && !isRecording) {
-    const coords = geojsonLine?.geometry?.coordinates;
+  // guardar la ruta cuando se deja de grabar
 
-    
-    if (Array.isArray(coords) && coords.length >= 2) {
-      const makeId = () => {
-        try {
-          return crypto.randomUUID();
-        } catch {
-          return `${Date.now()}-${Math.random().toString(16).slice(2)}`;
-        }
-      };
+  const prevIsRecording = useRef(false);
 
-      saveRoute({
-        id: makeId(),
-        type: "recorded",
-        name: routeName,
-        terrain: activeFilter,
-        distance_km: metrics.distanceKm,
-        duration_min: null,
-        gain_m: metrics.gainM,
-        geojson: geojsonLine,
-        created_at: new Date().toISOString(),
-      });
+  useEffect(() => {
+
+    if (prevIsRecording.current && !isRecording) {
+      const coords = geojsonLine?.geometry?.coordinates;
+
+
+      if (Array.isArray(coords) && coords.length >= 2) {
+        const makeId = () => {
+          try {
+            return crypto.randomUUID();
+          } catch {
+            return `${Date.now()}-${Math.random().toString(16).slice(2)}`;
+          }
+        };
+
+        saveRoute({
+          id: makeId(),
+          type: "recorded",
+          name: routeName,
+          terrain: activeFilter,
+          distance_km: metrics.distanceKm,
+          duration_min: null,
+          gain_m: metrics.gainM,
+          geojson: geojsonLine,
+          created_at: new Date().toISOString(),
+        });
+
+        setRouteSaved(true);
+        setTimeout(() => setRouteSaved(false), 2500);
+
+      }
     }
-  }
 
-  prevIsRecording.current = isRecording;
-}, [isRecording, geojsonLine, metrics.distanceKm, metrics.gainM, routeName, activeFilter]);
+    prevIsRecording.current = isRecording;
+  }, [isRecording, geojsonLine, metrics.distanceKm, metrics.gainM, routeName, activeFilter]);
 
 
   return (
@@ -76,31 +83,11 @@ useEffect(() => {
         <RouteRegistrationHeader
           searchValue={searchValue}
           onSearchChange={setSearchValue}
+          onSearchSubmit={() => { }}
           activeFilter={activeFilter}
           onFilterChange={setActiveFilter}
         />
-      </div>
 
-      <div className="rr-coords">
-        {error ? (
-          <div className="rr-error">GPS: {String(error.message ?? error)}</div>
-        ) : currentPos ? (
-          <>
-            <div>
-              <b>Lat:</b> {currentPos.lat.toFixed(6)}
-            </div>
-            <div>
-              <b>Lng:</b> {currentPos.lng.toFixed(6)}
-            </div>
-            {currentPos.alt != null && (
-              <div>
-                <b>Alt:</b> {Math.round(currentPos.alt)} m
-              </div>
-            )}
-          </>
-        ) : (
-          <div>Esperando GPS…</div>
-        )}
       </div>
 
       <div className="rr-overlay-cards">
@@ -111,26 +98,48 @@ useEffect(() => {
             {isRecording ? "· Grabando…" : "· Listo"}
           </div>
 
-          <div className="rr-card-metrics">
-            <div>
-              <div className="rr-m-label">DISTANCIA</div>
-              <div className="rr-m-val">{metrics.distanceKm.toFixed(2)} km</div>
-            </div>
-            <div>
-              <div className="rr-m-label">DESNIVEL</div>
-              <div className="rr-m-val">{metrics.gainM} m</div>
-            </div>
-            <div className="rr-rating">{isRecording ? "● REC" : "▶ START"}</div>
+
+          {/* fila nueva ruta*/}
+          <div className="rr-new-route">
+            <button
+              className="ui-btn ui-btn--secondary"
+              onClick={() => navigate("/explore")}
+            >
+              Nueva Ruta
+            </button>
+
           </div>
 
-          
+          <div className="rr-card-metrics">
+
+            {/* labels */}
+            <div className="rr-m-label">DIST.</div>
+            <div className="rr-m-label">DESNIVEL</div>
+            <div className="rr-m-label">TIEMPO</div>
+            <div className="rr-m-label">RUTAS</div>
+
+            {/* valores */}
+            <div className="rr-m-val">{metrics.distanceKm.toFixed(2)} km</div>
+            <div className="rr-m-val">{metrics.gainM} m</div>
+            <div className="rr-m-val">—</div>
+
+            <span
+              className="rr-link"
+              onClick={() => navigate("/saved-routes")}
+            >
+              RUTAS
+            </span>
+
+
+          </div>
+
+
+
           <div style={{ display: "none" }}>
             {JSON.stringify({ points: points.length, geojsonLine })}
           </div>
         </div>
       </div>
-
-      <RouteRegistrationBottomNav onStart={toggle} isRecording={isRecording} />
     </div>
   );
 }

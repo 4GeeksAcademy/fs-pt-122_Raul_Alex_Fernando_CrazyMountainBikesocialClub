@@ -8,19 +8,25 @@ import RouteRegistrationBottomNav from "../components/RouteRegistration/RouteReg
 import useRoutePlanner from "../hooks/useRoutePlanner";
 import { saveRoute } from "../services/routesStorage";
 import { geocodePlace, reverseGeocodeLocality } from "../services/geocoding";
+import { useNavigate } from "react-router-dom";
 
 import "../styles/routeRegistration.css";
 
 export default function Explore() {
+  const [hasSaved, setHasSaved] = useState(false);
+  const [hasStarted, setHasStarted] = useState(false);
+
   const [searchValue, setSearchValue] = useState("");
   const [searchError, setSearchError] = useState(null);
   const [savedMsg, setSavedMsg] = useState(null);
 
   const [activeFilter, setActiveFilter] = useState("gravel");
-  const [routeName] = useState("Nueva ruta");
+  const [routeName] = useState("RUTA");
 
   const mapRef = useRef(null);
   const searchMarkerRef = useRef(null);
+  const navigate = useNavigate();
+
 
   const {
     waypoints,
@@ -56,7 +62,7 @@ export default function Explore() {
         return `${Date.now()}-${Math.random().toString(16).slice(2)}`;
       }
     };
-    
+
     const [sLng, sLat] = coords[0];
     const [eLng, eLat] = coords[coords.length - 1];
 
@@ -65,13 +71,13 @@ export default function Explore() {
       reverseGeocodeLocality(eLng, eLat, { language: "es", country: "es" }),
     ]);
 
-    const autoName = 
-      starLoc && endLoc ? `${starLoc} → ${endLoc}` : 
-      starLoc ? `Desde ${starLoc}` :
-      endLoc ? `Hasta ${endLoc}` :
-      "Ruta planificada";
+    const autoName =
+      starLoc && endLoc ? `${starLoc} → ${endLoc}` :
+        starLoc ? `Desde ${starLoc}` :
+          endLoc ? `Hasta ${endLoc}` :
+            "Ruta planificada";
 
-      
+
     const geojsonFeature = {
       type: "Feature",
       geometry: summary.geojsonLine.geometry,
@@ -97,6 +103,11 @@ export default function Explore() {
     };
 
     saveRoute(plannedRoute);
+    setHasStarted(false);
+    setHasSaved(true);
+    clear();
+
+
 
     setSavedMsg("Ruta guardada");
     window.clearTimeout(savePlannedRoute._t);
@@ -169,13 +180,14 @@ export default function Explore() {
       <div className="rr-coords">Puntos: {waypoints.length}</div>
 
       {searchError && <div className="rr-error">Buscar: {searchError}</div>}
-      {savedMsg && (
-        <div className="rr-coords" style={{ top: 58 }}>
-          {savedMsg}
-        </div>
-      )}
 
       <div className="rr-overlay-cards">
+        {savedMsg && (
+          <div className="rr-toast">
+            ✅ {savedMsg}
+          </div>
+        )}
+
         <div className="rr-card">
           <div className="rr-card-title">{routeName}</div>
 
@@ -184,43 +196,70 @@ export default function Explore() {
           </div>
 
           <div className="rr-card-metrics">
-            <div>
-              <div className="rr-m-label">DISTANCIA</div>
-              <div className="rr-m-val">{summary.distanceKm.toFixed(2)} km</div>
-            </div>
 
-            <div>
-              <div className="rr-m-label">TIEMPO</div>
-              <div className="rr-m-val">{summary.durationMin.toFixed(0)} min</div>
-            </div>
+            {/* acciones */}
+            <div className="rr-actions">
 
-            <div
-              className="rr-rating"
-              style={{ display: "flex", gap: 12, justifyContent: "flex-end" }}
-            >
-              <button type="button" className="rr-clear" onClick={clear}>
+              <button
+                className="ui-btn ui-btn--secondary"
+                disabled={hasStarted}
+                onClick={() => {
+                  attachMapClick();
+                  setHasStarted(true);
+                  setHasSaved(false);
+                }}
+                style={{
+                  opacity: hasStarted ? 0.5 : 1,
+                  cursor: hasStarted ? "not-allowed" : "pointer",
+                }}
+              >
+                INICIAR
+              </button>
+
+
+
+              <button
+                className="ui-btn ui-btn--secondary"
+                onClick={clear}
+              >
                 LIMPIAR
               </button>
 
               <button
-                type="button"
-                className="rr-clear"
+                className="ui-btn ui-btn--secondary"
                 onClick={savePlannedRoute}
-                disabled={!canSave}
-                title={
-                  !canSave
-                    ? "Añade al menos 2 puntos para guardar"
-                    : "Guardar ruta planificada"
-                }
+                disabled={!canSave || hasSaved}
                 style={{
-                  opacity: canSave ? 1 : 0.5,
-                  cursor: canSave ? "pointer" : "not-allowed",
+                  opacity: !canSave || hasSaved ? 0.5 : 1,
+                  cursor: !canSave || hasSaved ? "not-allowed" : "pointer",
                 }}
               >
+
                 GUARDAR
               </button>
+
             </div>
+
+            {/* labels */}
+            <div className="rr-m-label">DIST.</div>
+            <div className="rr-m-label">DESNIVEL</div>
+            <div className="rr-m-label">TIEMPO</div>
+            <div className="rr-m-label">RUTAS</div>
+
+            {/* valores */}
+            <div className="rr-m-val">{summary.distanceKm.toFixed(2)} km</div>
+            <div className="rr-m-val">—</div>
+            <div className="rr-m-val">{summary.durationMin.toFixed(0)} min</div>
+
+            <span
+              className="rr-link"
+              onClick={() => navigate("/saved-routes")}
+            >
+              RUTAS
+            </span>
+
           </div>
+
 
           {planError && (
             <div className="rr-error">

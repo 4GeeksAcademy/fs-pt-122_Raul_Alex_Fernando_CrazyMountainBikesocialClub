@@ -1,7 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 
-import RouteRegistrationBottomNav from "../components/RouteRegistration/RouteRegistrationBottomNav";
 import { deleteRoute, getRoutes } from "../services/routesStorage";
 
 export default function SavedRoutes() {
@@ -113,7 +112,6 @@ export default function SavedRoutes() {
         )}
       </div>
 
-      <RouteRegistrationBottomNav isRecording={false} fabTo="/route-registration" />
     </div>
   );
 }

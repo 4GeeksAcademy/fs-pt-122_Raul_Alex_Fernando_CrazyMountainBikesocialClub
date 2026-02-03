@@ -19,16 +19,28 @@ export default function MapView({
     }
     mapboxgl.accessToken = token;
 
-    if (mapRef.current) return; 
+    if (mapRef.current) return;
 
     mapRef.current = new mapboxgl.Map({
       container: mapContainerRef.current,
-      style: "mapbox://styles/mapbox/outdoors-v12", 
+      style: "mapbox://styles/mapbox/outdoors-v12",
       center,
       zoom,
     });
 
     mapRef.current.addControl(new mapboxgl.NavigationControl(), "bottom-right");
+   
+    mapRef.current.addControl(
+      new mapboxgl.GeolocateControl({
+        positionOptions: {
+          enableHighAccuracy: true,
+        },
+        trackUserLocation: true,
+        showUserHeading: true,
+      }),
+      "bottom-right"
+    );
+
 
     mapRef.current.on("load", () => {
       onMapLoad?.(mapRef.current);

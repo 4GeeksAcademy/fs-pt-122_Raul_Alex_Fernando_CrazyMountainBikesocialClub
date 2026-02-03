@@ -33,7 +33,7 @@
   display: grid;
   grid-template-columns: 40px 1fr 44px;
   align-items: center;
-  background: rgba(255, 255, 255, 0.92);
+  background: #020617;
   border-radius: 18px;
   padding: 10px 10px;
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
@@ -44,6 +44,7 @@
   outline: none;
   background: transparent;
   font-size: 14px;
+  color:#f3c247
 }
 
 .rr-search-icon {
@@ -73,7 +74,7 @@
   cursor: pointer;
   padding: 10px 14px;
   border-radius: 999px;
-  background: rgba(255, 255, 255, 0.92);
+  background: #020617;
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
   font-weight: 700;
   letter-spacing: 0.3px;
@@ -88,21 +89,23 @@
   position: absolute;
   left: 0;
   right: 0;
-  bottom: 92px;
+  bottom: 150px;
   display: flex;
-  justify-content: center;
+  flex-direction: column;
+  align-items: center;
   z-index: 10;
   pointer-events: none;
 }
 
+
 .rr-card {
   pointer-events: auto;
   width: min(520px, calc(100% - 24px));
-  background: rgba(255, 255, 255, 0.95);
+  background: #020617;
   border-radius: 18px;
   padding: 14px 16px;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.18);
-  color: #222; ;
+  color: #ffffff; ;
 }
 
 .rr-card-title {
@@ -116,11 +119,18 @@
 }
 
 .rr-card-metrics {
-  margin-top: 10px;
+  margin-top: 12px;
   display: grid;
-  grid-template-columns: 1fr 1fr auto;
-  gap: 12px;
-  align-items: end;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+  text-align: center;
+}
+
+.rr-actions {
+  grid-column: 1 / -1;
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
 }
 
 .rr-m-label {
@@ -201,4 +211,41 @@
 .rr-error {
   color: #b00020;
   font-weight: 700;
+}
+
+/* Subir controles de Mapbox para alinearlos con la tarjeta */
+
+.mapboxgl-ctrl-bottom-right,
+.mapboxgl-ctrl-bottom-left {
+  bottom: 120px !important;
+}
+
+
+
+/* Botones compactos solo en RouteRegistration */
+
+.rr-card .ui-btn {
+  padding: 6px 12px;
+  font-size: 11px;
+  min-height: auto;
+  border-radius: 10px;
+}
+
+.rr-link {
+  cursor: pointer;
+  font-weight: 800;
+  font-size: 11px;
+  color: #f3c247;
+  text-decoration: underline;
+  align-self: center;
+}
+
+.rr-link:hover {
+  opacity: 0.8;
+}
+
+.rr-new-route {
+  display: flex;
+  justify-content: center;
+  margin: 8px 0 12px;
 }

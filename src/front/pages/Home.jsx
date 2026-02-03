@@ -3,7 +3,6 @@ import { useNavigate } from "react-router-dom";
 
 import "../styles/home.css";
 
-import MainHeader from "../components/Header/MainHeader";
 import WeeklyKms from "../components/Home/WeeklyKms";
 import StartRouteButton from "../components/Home/StartRouteButton";
 import FeaturedRoutes from "../components/Home/FeaturedRoutes";
