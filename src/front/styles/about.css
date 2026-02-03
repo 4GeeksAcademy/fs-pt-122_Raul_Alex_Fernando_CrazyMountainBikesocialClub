@@ -1,6 +1,7 @@
 .about {
   background: linear-gradient(#020617, #020617);
   color: white;
+  margin-top: -120px
 }
 
 /* ================= HERO ================= */
@@ -9,6 +10,7 @@
   position: relative;
   height: 85vh;
   overflow: hidden;
+  padding-top: 72px; /* altura aproximada del header */
 }
 
 .about-hero-image {

@@ -1,4 +1,8 @@
+import { useNavigate } from "react-router-dom";
+
 export default function Footer() {
+  const navigate = useNavigate();
+
   return (
     <footer className="footer">
       
@@ -15,6 +19,10 @@ export default function Footer() {
       </p>
 
       <div className="footer-links">
+        <span onClick={() => navigate("/about")} style={{ cursor: "pointer" }}>
+          About
+        </span>
+
         <span>Política de privacidad</span>
         <span>Cookies</span>
       </div>

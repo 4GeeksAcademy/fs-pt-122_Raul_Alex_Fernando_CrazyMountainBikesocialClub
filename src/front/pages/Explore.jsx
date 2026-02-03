@@ -239,9 +239,6 @@ export default function Explore() {
         />
       </div>
 
-      <div className="rr-coords">Puntos: {waypoints.length}</div>
-      {searchError && <div className="rr-error">Buscar: {searchError}</div>}
-
       <div className="rr-overlay-cards">
         {savedMsg && <div className="rr-toast">✅ {savedMsg}</div>}
 

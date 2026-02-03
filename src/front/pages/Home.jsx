@@ -3,10 +3,8 @@ import { useNavigate } from "react-router-dom";
 
 import "../styles/home.css";
 
-import WeeklyKms from "../components/Home/WeeklyKms";
 import StartRouteButton from "../components/Home/StartRouteButton";
 import FeaturedRoutes from "../components/Home/FeaturedRoutes";
-import FriendsActivity from "../components/Home/FriendsActivity";
 import Garage from "../components/Profile/Garage";
 
 
@@ -49,14 +47,11 @@ const Home = () => {
 
 
         <main className="home-content">
-          <WeeklyKms />
           <StartRouteButton className="ui-btn--cta" />
           <FeaturedRoutes />
           <div className="ui-panel">
             <Garage />
-          </div>
-          <FriendsActivity />
-          
+          </div>          
          </main>
       </div>
     </div>

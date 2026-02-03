@@ -1,3 +1,4 @@
+import { useNavigate } from "react-router-dom";
 import TeamCard from "./TeamCard";
 
 const team = [
@@ -19,10 +20,11 @@ const team = [
     img: "https://media.licdn.com/dms/image/v2/D4E03AQGLIcvxkLVMEA/profile-displayphoto-crop_800_800/B4EZv_J2GvG0AI-/0/1769512330790?e=1770854400&v=beta&t=OjMuVEOic0cfQJrXJy-NJX7i6xqK_bnKkSvbFeITcM8",
     linkedin: "https://www.linkedin.com/in/raul-reyes-00851b386/"
   },
-  
 ];
 
 export default function AboutTeam() {
+  const navigate = useNavigate();
+
   return (
     <section className="about-team">
       <span className="section-tag">El Pelotón</span>
@@ -36,6 +38,26 @@ export default function AboutTeam() {
       <button className="contact-btn">
         Contáctanos <span>→</span>
       </button>
+
+      {/* Volver como texto */}
+      <span
+        onClick={() => {
+          navigate(-1);
+          window.scrollTo(0, 0);
+        }}
+        style={{
+          display: "block",
+          marginTop: 20,
+          textAlign: "center",
+          cursor: "pointer",
+          fontSize: "1.1rem",
+          fontWeight: 600,
+          color: "var(--accent-primary)", // tu amarillo del design system
+          opacity: 0.9
+        }}
+      >
+        ← Volver
+      </span>
     </section>
   );
 }

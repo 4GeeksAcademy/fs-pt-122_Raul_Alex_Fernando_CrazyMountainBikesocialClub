@@ -5,6 +5,7 @@ import { useLoader } from "../context/loaderContext";
 import "../styles/footer.css";
 import MainHeader from "../components/Header/MainHeader";
 import { useEffect, useState } from "react";
+import ScrollToTop from "../components/ScrollToTop";
 
 export const Layout = () => {
   const { isLoading } = useLoader();
@@ -15,24 +16,27 @@ export const Layout = () => {
   const [user, setUser] = useState(null);
 
   useEffect(() => {
-  const storedUser = JSON.parse(localStorage.getItem("user"));
+    const storedUser = JSON.parse(localStorage.getItem("user"));
 
-  setUser(storedUser);
+    setUser(storedUser);
 
-  if (storedUser && location.pathname === "/") {
-    navigate("/home");
-  }
+    if (storedUser && location.pathname === "/") {
+      navigate("/home");
+    }
 
-  setAuthLoading(false);
-}, [location.pathname]);
+    setAuthLoading(false);
+  }, [location.pathname]);
 
   if (authLoading) return null;
 
   const hideHeader =
     location.pathname === "/login" ||
-    location.pathname === "/signup";
+    location.pathname === "/signup" ||
+    location.pathname === "/about";
 
-  const hideFooter = location.pathname === "/route-registration";
+  const hideFooter =
+    location.pathname === "/route-registration" ||
+    location.pathname === "/about";
 
   return (
     <>
@@ -41,11 +45,12 @@ export const Layout = () => {
       <div className={`app-root ${isLoading ? "is-loading" : ""}`}>
         {user && !hideHeader && <MainHeader />}
 
-        <Outlet />
+        <ScrollToTop location={location}>
+          <Outlet />
+        </ScrollToTop>
 
         {!hideFooter && <Footer />}
       </div>
     </>
   );
 };
-

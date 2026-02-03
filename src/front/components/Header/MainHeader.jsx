@@ -1,17 +1,14 @@
 import { useNavigate, useLocation } from "react-router-dom";
-import { useEffect, useState } from "react";
+import { useUser } from "../../context/UserContext";
+
 import "../../styles/header.css";
 
 export default function MainHeader() {
   const navigate = useNavigate();
   const location = useLocation();
 
-  const [user, setUser] = useState(null);
-
-  useEffect(() => {
-    const stored = JSON.parse(localStorage.getItem("user"));
-    setUser(stored);
-  }, []);
+  // 👇 viene del Context (una sola fuente de verdad)
+  const { user } = useUser();
 
   const variant = location.pathname === "/home" ? "home" : "profile";
 
@@ -81,8 +78,9 @@ export default function MainHeader() {
             onClick={() => navigate("/home")}
           >
             <i
-              className={`fa-solid fa-house nav-home-icon ${variant === "home" ? "active" : ""
-                }`}
+              className={`fa-solid fa-house nav-home-icon ${
+                variant === "home" ? "active" : ""
+              }`}
             />
           </button>
 

@@ -5,10 +5,8 @@ export default function RouteRegistrationBottomNav({
   onStart,
   isRecording = false,
 
-  // NUEVO: si viene, el FAB navega a esa ruta (en vez de ejecutar onStart)
   fabTo = null,
 
-  // Opcionales para afinar accesibilidad/UX desde cada página
   fabLabel,
   fabTitle,
   fabIcon,
@@ -31,28 +29,4 @@ export default function RouteRegistrationBottomNav({
     if (fabTo) return navigate(fabTo);
     if (typeof onStart === "function") return onStart();
   };
-
-  return (
-    <div className="rr-bottom">
-      <div className="rr-bottom-nav">
-        <button
-          type="button"
-          className="rr-nav-item"
-          onClick={() => navigate("/explore")}
-        >
-          EXPLORAR
-        </button>
-
-        <button
-          type="button"
-          className="rr-nav-item"
-          onClick={() => navigate("/saved-routes")}
-        >
-          RUTAS
-        </button>
-
-        
-      </div>
-    </div>
-  );
 }

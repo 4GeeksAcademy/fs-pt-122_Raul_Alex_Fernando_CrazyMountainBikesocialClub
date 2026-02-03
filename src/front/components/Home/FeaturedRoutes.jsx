@@ -3,6 +3,20 @@ import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { getRoutes } from "../../services/routesStorage.js";
 
+const genericImages = [
+  "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee",
+  "https://images.unsplash.com/photo-1501785888041-af3ef285b470",
+  "https://images.unsplash.com/photo-1470770841072-f978cf4d019e",
+  "https://images.unsplash.com/photo-1500534314209-a25ddb2bd429",
+  "https://images.unsplash.com/photo-1502920514313-52581002a659",
+  "https://images.unsplash.com/photo-1520975916090-3105956dac38",
+  "https://images.unsplash.com/photo-1500534623283-312aade485b7",
+  "https://images.unsplash.com/photo-1519681393784-d120267933ba",
+  "https://images.unsplash.com/photo-1499346030926-9a72daac6c63",
+  "https://images.unsplash.com/photo-1500534623283-312aade485b7"
+];
+
+
 const FeaturedRoutes = () => {
   const navigate = useNavigate();
   const [routes, setRoutes] = useState([]);
@@ -27,12 +41,13 @@ const FeaturedRoutes = () => {
       </div>
 
       <div className="featured-list">
-        {routes.map(route => (
+        {routes.map((route, index) => (
           <article key={route.id} className="route-card clickable" onClick={() => navigate(`/saved-routes/${route.id}`)}>
             <img
-              src={route.image || "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee"}
+              src={route.image || genericImages[index % genericImages.length]}
               alt={route.name}
             />
+
 
             <div className="route-info">
               <div className="route-tags">

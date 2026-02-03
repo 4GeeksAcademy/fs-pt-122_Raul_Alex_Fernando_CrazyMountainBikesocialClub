@@ -1,15 +1,16 @@
-import React from 'react'
-import ReactDOM from 'react-dom/client'
+import React from "react";
+import ReactDOM from "react-dom/client";
 
-import './styles/design-system.css'
-import './styles/ui.css'
-import './index.css'
+import "./styles/design-system.css";
+import "./styles/ui.css";
+import "./index.css";
 
 import { RouterProvider } from "react-router-dom";
 import { router } from "./routes";
-import { StoreProvider } from './hooks/useGlobalReducer';
-import { BackendURL } from './components/BackendURL';
+import { StoreProvider } from "./hooks/useGlobalReducer";
+import { BackendURL } from "./components/BackendURL";
 import { LoaderProvider } from "./context/loaderContext";
+import { UserProvider } from "./context/UserContext";
 
 const Main = () => {
 
@@ -25,12 +26,13 @@ const Main = () => {
     <React.StrictMode>
       <LoaderProvider>
         <StoreProvider>
-          <RouterProvider router={router} />
+          <UserProvider>
+            <RouterProvider router={router} />
+          </UserProvider>
         </StoreProvider>
       </LoaderProvider>
     </React.StrictMode>
   );
 };
 
-// Render the Main component into the root DOM element.
-ReactDOM.createRoot(document.getElementById('root')).render(<Main />);
+ReactDOM.createRoot(document.getElementById("root")).render(<Main />);
