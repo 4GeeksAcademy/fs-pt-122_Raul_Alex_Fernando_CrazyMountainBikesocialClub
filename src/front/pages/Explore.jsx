@@ -1,18 +1,25 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import mapboxgl from "mapbox-gl";
+import { useNavigate } from "react-router-dom";
 
 import MapView from "../components/Map/MapView";
 import RouteRegistrationHeader from "../components/RouteRegistration/RouteRegistrationHeader";
 import RouteRegistrationBottomNav from "../components/RouteRegistration/RouteRegistrationBottomNav";
+import NearbyServicesDropdown from "../components/Map/NearbyServicesDropdown";
 
 import useRoutePlanner from "../hooks/useRoutePlanner";
 import { saveRoute } from "../services/routesStorage";
 import { geocodePlace, reverseGeocodeLocality } from "../services/geocoding";
-import { useNavigate } from "react-router-dom";
-
+import {upsertNearbyServicesLayers,removeNearbyServicesLayers,} from "../utils/mapPois";
+import { set } from "@cloudinary/url-gen/actions/variable";
 import "../styles/routeRegistration.css";
 
 export default function Explore() {
+  const navigate = useNavigate();
+
+  const mapRef = useRef(null);
+  const searchMarkerRef = useRef(null);
+
   const [hasSaved, setHasSaved] = useState(false);
   const [hasStarted, setHasStarted] = useState(false);
 
@@ -23,10 +30,15 @@ export default function Explore() {
   const [activeFilter, setActiveFilter] = useState("gravel");
   const [routeName] = useState("RUTA");
 
-  const mapRef = useRef(null);
-  const searchMarkerRef = useRef(null);
-  const navigate = useNavigate();
-
+  const [servicesOpen, setServicesOpen] = useState(false);
+  const [services, setServices] = useState(null);
+  const [servicesError, setServicesError] = useState(null);
+  const [enabledServiceKeys, setEnabledServiceKeys] = useState([
+    "fuel",
+    "food",
+    "hospital",
+    "bike",
+  ]);
 
   const {
     waypoints,
@@ -46,73 +58,9 @@ export default function Explore() {
     return () => {
       detachMapClick();
       if (searchMarkerRef.current) searchMarkerRef.current.remove();
+      if (mapRef.current) removeNearbyServicesLayers(mapRef.current);
     };
   }, [detachMapClick]);
-
-  const savePlannedRoute = async () => {
-    if (!canSave) return;
-
-    const coords = summary?.geojsonLine?.geometry?.coordinates;
-    if (!Array.isArray(coords) || coords.length < 2) return;
-
-    const makeId = () => {
-      try {
-        return crypto.randomUUID();
-      } catch {
-        return `${Date.now()}-${Math.random().toString(16).slice(2)}`;
-      }
-    };
-
-    const [sLng, sLat] = coords[0];
-    const [eLng, eLat] = coords[coords.length - 1];
-
-    const [starLoc, endLoc] = await Promise.all([
-      reverseGeocodeLocality(sLng, sLat, { language: "es", country: "es" }),
-      reverseGeocodeLocality(eLng, eLat, { language: "es", country: "es" }),
-    ]);
-
-    const autoName =
-      starLoc && endLoc ? `${starLoc} → ${endLoc}` :
-        starLoc ? `Desde ${starLoc}` :
-          endLoc ? `Hasta ${endLoc}` :
-            "Ruta planificada";
-
-
-    const geojsonFeature = {
-      type: "Feature",
-      geometry: summary.geojsonLine.geometry,
-      properties: {
-        name: autoName,
-        distanceKm: summary.distanceKm,
-        durationMin: summary.durationMin,
-        terrain: activeFilter,
-      },
-    };
-
-    const plannedRoute = {
-      id: makeId(),
-      type: "route",
-      name: autoName,
-      terrain: activeFilter,
-      distance_km: summary.distanceKm,
-      duration_min: summary.durationMin,
-      gain_m: null,
-      geojsonFeature,
-      created_at: new Date().toISOString(),
-
-    };
-
-    saveRoute(plannedRoute);
-    setHasStarted(false);
-    setHasSaved(true);
-    clear();
-
-
-
-    setSavedMsg("Ruta guardada");
-    window.clearTimeout(savePlannedRoute._t);
-    savePlannedRoute._t = window.setTimeout(() => setSavedMsg(null), 1200);
-  };
 
   const runSearch = async () => {
     const q = (searchValue || "").trim();
@@ -139,7 +87,6 @@ export default function Explore() {
       }
 
       const [lng, lat] = result.center;
-
       map.flyTo({ center: [lng, lat], zoom: 12, essential: true });
 
       if (searchMarkerRef.current) searchMarkerRef.current.remove();
@@ -151,6 +98,122 @@ export default function Explore() {
     }
   };
 
+  const toggleServices = async () => {
+    if (!canSave) return;
+
+    const map = mapRef.current;
+    if (!map) return;
+
+    if (servicesOpen) {
+      setServicesOpen(false);
+      setServicesError(null);
+      removeNearbyServicesLayers(map);
+      return;
+    }
+
+    if (services) {
+      setServicesOpen(true);
+      upsertNearbyServicesLayers(map, services, enabledServiceKeys);
+      return;
+    }
+
+    try {
+      setServicesError(null);
+
+      const base = import.meta.env.VITE_BACKEND_URL;
+      if (!base) throw new Error("Falta VITE_BACKEND_URL");
+
+      const res = await fetch(`${base}/api/nearby-services`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          geojson: summary.geojsonLine,
+          radius_m: 300,
+          sample_every_m: 800,
+        }),
+      });
+
+      const data = await res.json();
+      if (!res.ok) throw new Error(data?.error || `HTTP ${res.status}`);
+
+      setServices(data);
+      setServicesOpen(true);
+      upsertNearbyServicesLayers(map, data, enabledServiceKeys);
+    } catch (e) {
+      setServicesError(String(e?.message ?? e));
+      setServicesOpen(true);
+    }
+  };
+
+  useEffect(() => {
+    if (!servicesOpen || !services) return;
+    const map = mapRef.current;
+    if (!map) return;
+
+    upsertNearbyServicesLayers(map, services, enabledServiceKeys);
+  }, [enabledServiceKeys, servicesOpen, services]);
+
+  const savePlannedRoute = async () => {
+    if (!canSave) return;
+
+    const coords = summary.geojsonLine.geometry.coordinates;
+    const [sLng, sLat] = coords[0];
+    const [eLng, eLat] = coords[coords.length - 1];
+
+    const [startLoc, endLoc] = await Promise.all([
+      reverseGeocodeLocality(sLng, sLat, { language: "es", country: "es" }),
+      reverseGeocodeLocality(eLng, eLat, { language: "es", country: "es" }),
+    ]);
+
+    const autoName =
+      startLoc && endLoc
+        ? `${startLoc} → ${endLoc}`
+        : startLoc
+        ? `Desde ${startLoc}`
+        : endLoc
+        ? `Hasta ${endLoc}`
+        : "Ruta planificada";
+
+    const plannedRoute = {
+      id: crypto.randomUUID?.() ?? `${Date.now()}`,
+      type: "route",
+      name: autoName,
+      terrain: activeFilter,
+      distance_km: summary.distanceKm,
+      duration_min: summary.durationMin,
+      gain_m: null,
+      geojsonFeature: {
+        type: "Feature",
+        geometry: summary.geojsonLine.geometry,
+        properties: {
+          name: autoName,
+          distanceKm: summary.distanceKm,
+          durationMin: summary.durationMin,
+          terrain: activeFilter,
+        },
+      },
+      created_at: new Date().toISOString(),
+    };
+
+    saveRoute(plannedRoute);
+
+    setHasStarted(false);
+    setHasSaved(true);
+    setServicesOpen(false);
+    setServices(null);
+    setServicesError(null);
+    if (mapRef.current) removeNearbyServicesLayers(mapRef.current);
+
+    clear();
+
+    setSavedMsg("Ruta guardada");
+    window.clearTimeout(savePlannedRoute._t);
+    savePlannedRoute._t = window.setTimeout(() => setSavedMsg(null), 1200);
+  };
+
+  const distKm = summary?.distanceKm ?? 0;
+  const durMin = summary?.durationMin ?? 0;
+
   return (
     <div className="rr-page">
       <MapView
@@ -159,7 +222,6 @@ export default function Explore() {
         zoom={12}
         onMapLoad={(map) => {
           mapRef.current = map;
-
           setTimeout(() => {
             map.doubleClickZoom?.disable?.();
             attachMapClick();
@@ -178,28 +240,19 @@ export default function Explore() {
       </div>
 
       <div className="rr-coords">Puntos: {waypoints.length}</div>
-
       {searchError && <div className="rr-error">Buscar: {searchError}</div>}
 
       <div className="rr-overlay-cards">
-        {savedMsg && (
-          <div className="rr-toast">
-            ✅ {savedMsg}
-          </div>
-        )}
+        {savedMsg && <div className="rr-toast">✅ {savedMsg}</div>}
 
         <div className="rr-card">
           <div className="rr-card-title">{routeName}</div>
-
           <div className="rr-card-subtitle">
             Terreno: {activeFilter.toUpperCase()} · Listo
           </div>
 
           <div className="rr-card-metrics">
-
-            {/* acciones */}
             <div className="rr-actions">
-
               <button
                 className="ui-btn ui-btn--secondary"
                 disabled={hasStarted}
@@ -208,58 +261,53 @@ export default function Explore() {
                   setHasStarted(true);
                   setHasSaved(false);
                 }}
-                style={{
-                  opacity: hasStarted ? 0.5 : 1,
-                  cursor: hasStarted ? "not-allowed" : "pointer",
-                }}
               >
                 INICIAR
               </button>
 
-
-
               <button
                 className="ui-btn ui-btn--secondary"
-                onClick={clear}
+                onClick={() => {
+                  setServicesOpen(false);
+                  setServices(null);
+                  if (mapRef.current)
+                    removeNearbyServicesLayers(mapRef.current);
+                  clear();
+                }}
               >
                 LIMPIAR
               </button>
 
               <button
                 className="ui-btn ui-btn--secondary"
-                onClick={savePlannedRoute}
-                disabled={!canSave || hasSaved}
-                style={{
-                  opacity: !canSave || hasSaved ? 0.5 : 1,
-                  cursor: !canSave || hasSaved ? "not-allowed" : "pointer",
-                }}
+                onClick={toggleServices}
+                disabled={!canSave}
               >
-
-                GUARDAR
+                SERVICIOS
               </button>
 
+              <button
+                className="ui-btn ui-btn--secondary"
+                onClick={savePlannedRoute}
+                disabled={!canSave || hasSaved}
+              >
+                GUARDAR
+              </button>
             </div>
 
-            {/* labels */}
             <div className="rr-m-label">DIST.</div>
             <div className="rr-m-label">DESNIVEL</div>
             <div className="rr-m-label">TIEMPO</div>
             <div className="rr-m-label">RUTAS</div>
 
-            {/* valores */}
-            <div className="rr-m-val">{summary.distanceKm.toFixed(2)} km</div>
+            <div className="rr-m-val">{distKm.toFixed(2)} km</div>
             <div className="rr-m-val">—</div>
-            <div className="rr-m-val">{summary.durationMin.toFixed(0)} min</div>
+            <div className="rr-m-val">{durMin.toFixed(0)} min</div>
 
-            <span
-              className="rr-link"
-              onClick={() => navigate("/saved-routes")}
-            >
+            <span className="rr-link" onClick={() => navigate("/saved-routes")}>
               RUTAS
             </span>
-
           </div>
-
 
           {planError && (
             <div className="rr-error">
@@ -268,6 +316,18 @@ export default function Explore() {
           )}
         </div>
       </div>
+
+      <NearbyServicesDropdown
+        open={servicesOpen}
+        data={services}
+        error={servicesError}
+        enabledKeys={enabledServiceKeys}
+        onChangeEnabledKeys={setEnabledServiceKeys}
+        onClose={() => {
+          setServicesOpen(false);
+          if (mapRef.current) removeNearbyServicesLayers(mapRef.current);
+        }}
+      />
 
       <RouteRegistrationBottomNav
         isRecording={false}

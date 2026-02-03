@@ -8,6 +8,8 @@ from flask_cors import CORS
 from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity
 from api.services.ollama_client import ollama_chat
 from api.services.catalog import load_catalog, rank_bikes
+from api.services.overpass_pois import get_nearby_services_for_route
+
 
 api = Blueprint('api', __name__)
 
@@ -416,3 +418,31 @@ def ai_chat():
 
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+    
+
+from api.services.overpass_pois import get_nearby_services_for_route
+
+@api.route("/nearby-services", methods=["POST"])
+def nearby_services():
+    body = request.get_json(silent=True) or {}
+
+    geojson = body.get("geojson")
+    radius_m = int(body.get("radius_m") or 300)
+
+    try:
+        data = get_nearby_services_for_route(
+            geojson_feature=geojson,
+            radius_m=radius_m,
+            cache_ttl=60
+        )
+        return jsonify(data), 200
+
+    except Exception as e:
+        msg = str(e)
+
+        
+        if "429" in msg:
+            return jsonify({"error": "Overpass rate limited (429). Espera unos segundos y prueba otra vez."}), 429
+
+        return jsonify({"error": msg}), 500
+import requests     
