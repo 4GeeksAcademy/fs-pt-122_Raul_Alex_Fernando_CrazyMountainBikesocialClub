@@ -1,6 +1,4 @@
 import { useRef, useEffect, useState } from 'react'
-import mapboxgl from 'mapbox-gl'
-import { SearchBox } from '@mapbox/search-js-react'
 
 import 'mapbox-gl/dist/mapbox-gl.css';
 import './App.css'

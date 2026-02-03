@@ -13,28 +13,31 @@ export default function RouteRegistrationHeader({
 
   return (
     <div className="rr-header">
-      <div className="rr-search">
+      <form
+        className="rr-search"
+        onSubmit={(e) => {
+          e.preventDefault();
+          onSearchSubmit?.();
+        }}
+      >
         <span className="rr-search-icon">⌕</span>
 
         <input
           value={searchValue}
           onChange={(e) => onSearchChange(e.target.value)}
-          onKeyDown={(e) => {
-            if (e.key === "Enter") onSearchSubmit?.();
-          }}
           placeholder="Buscar rutas o lugares"
         />
 
         <button
           className="rr-search-btn"
-          type="button"
+          type="submit"
           aria-label="Buscar"
           title="Buscar"
-          onClick={() => onSearchSubmit?.()}
         >
           ↵
         </button>
-      </div>
+      </form>
+
 
       <div className="rr-chips">
         {filters.map((f) => (

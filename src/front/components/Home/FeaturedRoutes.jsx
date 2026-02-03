@@ -28,7 +28,7 @@ const FeaturedRoutes = () => {
 
       <div className="featured-list">
         {routes.map(route => (
-          <article key={route.id} className="route-card clickable" onClick={() => navigate(`/route/${route.id}`)}>
+          <article key={route.id} className="route-card clickable" onClick={() => navigate(`/saved-routes/${route.id}`)}>
             <img
               src={route.image || "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee"}
               alt={route.name}

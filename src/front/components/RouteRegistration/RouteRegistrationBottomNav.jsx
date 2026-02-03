@@ -51,31 +51,7 @@ export default function RouteRegistrationBottomNav({
           RUTAS
         </button>
 
-        <button
-          type="button"
-          className="rr-fab"
-          onClick={handleFabClick}
-          aria-label={computed.label}
-          title={computed.title}
-        >
-          {computed.icon}
-        </button>
-
-        <button
-          type="button"
-          className="rr-nav-item"
-          onClick={() => navigate("/taller")}
-        >
-          TALLER
-        </button>
-
-        <button
-          type="button"
-          className="rr-nav-item"
-          onClick={() => navigate("/profile")}
-        >
-          PERFIL
-        </button>
+        
       </div>
     </div>
   );
