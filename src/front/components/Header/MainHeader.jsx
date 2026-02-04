@@ -1,5 +1,6 @@
 import { useNavigate, useLocation } from "react-router-dom";
 import { useUser } from "../../context/UserContext";
+import defaultAvatar from "../../assets/trail.png";
 
 import "../../styles/header.css";
 
@@ -7,7 +8,7 @@ export default function MainHeader() {
   const navigate = useNavigate();
   const location = useLocation();
 
-  // 👇 viene del Context (una sola fuente de verdad)
+
   const { user } = useUser();
 
   const variant = location.pathname === "/home" ? "home" : "profile";
@@ -21,7 +22,6 @@ export default function MainHeader() {
     <header className="main-header">
       <div className="header-inner">
 
-        {/* IZQUIERDA */}
         <div className="header-left">
 
           <div
@@ -29,7 +29,7 @@ export default function MainHeader() {
             onClick={() => navigate("/profile")}
           >
             <img
-              src={user?.avatar || "https://via.placeholder.com/64"}
+              src={user?.avatar || defaultAvatar}
               alt="avatar"
               className={variant === "profile" ? "profile-avatar active" : ""}
             />
@@ -70,7 +70,6 @@ export default function MainHeader() {
 
         </div>
 
-        {/* DERECHA */}
         <div className="header-actions">
 
           <button
@@ -78,9 +77,8 @@ export default function MainHeader() {
             onClick={() => navigate("/home")}
           >
             <i
-              className={`fa-solid fa-house nav-home-icon ${
-                variant === "home" ? "active" : ""
-              }`}
+              className={`fa-solid fa-house nav-home-icon ${variant === "home" ? "active" : ""
+                }`}
             />
           </button>
 

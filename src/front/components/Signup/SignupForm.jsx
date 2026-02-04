@@ -1,10 +1,12 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useUser } from "../../context/UserContext";
 
 const backendUrl = import.meta.env.VITE_BACKEND_URL;
 
 const SignupForm = () => {
   const navigate = useNavigate();
+  const { updateUser } = useUser();
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -43,11 +45,11 @@ const SignupForm = () => {
         return;
       }
 
-      localStorage.setItem("user", JSON.stringify(loginData.user));
-
       if (loginData.token) {
         localStorage.setItem("token", loginData.token);
       }
+
+      updateUser(loginData.user);
 
       navigate("/home");
 

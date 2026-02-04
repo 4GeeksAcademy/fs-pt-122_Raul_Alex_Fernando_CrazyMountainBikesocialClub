@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 import { useUser } from "../context/UserContext";
 import Garage from "../components/Profile/Garage";
+import defaultAvatar from "../assets/trail.png";
 
 const Profile = () => {
   const { user, updateUser } = useUser();
@@ -8,7 +9,7 @@ const Profile = () => {
   const [saved, setSaved] = useState(false);
   const fileInputRef = useRef();
 
-  // sincroniza draft cuando cambia el user global
+  
   useEffect(() => {
     setDraftUser(user);
   }, [user]);
@@ -57,7 +58,7 @@ const Profile = () => {
               }}
             >
               <img
-                src={draftUser.avatar || "https://via.placeholder.com/120"}
+                src={draftUser?.avatar || defaultAvatar}
                 alt="avatar"
                 style={{
                   width: 110,
