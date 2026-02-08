@@ -231,20 +231,25 @@ def create_bike():
     body = request.get_json(silent=True) or {}
     name = (body.get("name") or "").strip()
     bike_model_id = body.get("bike_model_id")  # NUEVO
-    model = body.get("model")
+    model = (body.get("model") or "").strip()
     specs = body.get("specs")
     image_url = body.get("image_url")
     video_url = body.get("video_url")
     parts = body.get("parts") or []
 
     if not name:
-        return jsonify({"msg": "Name is required"}), 400
+        return jsonify({"msg": "Nombre es requerido"}), 400
+    
+    if not model:
+        return jsonify({"msg": "Model es requerido"}), 400
+
+    
 
     # Validar modelo si se proporciona
     if bike_model_id:
         bike_model = BikeModel.query.get(bike_model_id)
         if not bike_model:
-            return jsonify({"msg": "Bike model not found"}), 404
+            return jsonify({"msg": "Modelo no encontrado"}), 404
 
     bike = Bike(
         user_id=user.id,
@@ -309,6 +314,8 @@ def update_bike(bike_id):
         return jsonify({"msg": "Bike not found"}), 404
     
     body = request.get_json(silent=True) or {}
+
+    model = (body.get("model") or "").strip() if "model" in body else None
     
     # Actualizar campos
     if "name" in body:
@@ -316,11 +323,15 @@ def update_bike(bike_id):
     
     if "bike_model_id" in body:
         bike_model_id = body["bike_model_id"]
-        if bike_model_id:
-            bike_model = BikeModel.query.get(bike_model_id)
-            if not bike_model:
-                return jsonify({"msg": "Bike model not found"}), 404
-            bike.bike_model_id = bike_model_id
+
+    if bike_model_id:
+        bike_model = BikeModel.query.get(bike_model_id)
+        if not bike_model:
+            return jsonify({"msg": "Modelo de bici no encontrado"}), 404
+        bike.bike_model_id = bike_model_id
+    else:
+        bike.bike_model_id = None
+
     
     if "specs" in body:
         bike.specs = body["specs"]
