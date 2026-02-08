@@ -18,12 +18,15 @@ const AddBikeModal = ({
     existingBike,
 }) => {
     const [name, setName] = useState("");
-    const [bikeModelId, setBikeModelId] = useState("");
+    const [bikeModelId, setBikeModelId] = useState(null);
+    const [bikeModelName, setBikeModelName] = useState("");
+
     const [bikeModels, setBikeModels] = useState([]);
     const [filteredModels, setFilteredModels] = useState([]);
     const [modelSearchTerm, setModelSearchTerm] = useState("");
     const [isLoadingModels, setIsLoadingModels] = useState(false);
     const [showModelDropdown, setShowModelDropdown] = useState(false);
+
     const [specs, setSpecs] = useState("");
     const [parts, setParts] = useState([DEFAULT_PART]);
     const [imagePublicId, setImagePublicId] = useState("");
@@ -58,6 +61,17 @@ const AddBikeModal = ({
             setBikeModelId(existingBike.bike_model_id || "");
             setSpecs(existingBike.specs || "");
             setVideoUrl(existingBike.video_url || "");
+            setBikeModelName(
+                existingBike.bike_model
+                    ? existingBike.bike_model.full_name
+                    : existingBike.model || ""
+            );
+            setModelSearchTerm(
+                existingBike.bike_model
+                    ? existingBike.bike_model.full_name
+                    : existingBike.model || ""
+            );
+
 
             if (existingBike.image_url) {
                 const match = existingBike.image_url.match(
@@ -158,17 +172,21 @@ const AddBikeModal = ({
 
     const handleSelectModel = (model) => {
         setBikeModelId(model.id);
+        setBikeModelName(model.full_name);
         setModelSearchTerm(model.full_name);
         setShowModelDropdown(false);
     };
 
+
     const handleModelSearchChange = (e) => {
-        setModelSearchTerm(e.target.value);
+        const value = e.target.value;
+
+        setModelSearchTerm(value);
+        setBikeModelName(value);
         setShowModelDropdown(true);
-        if (e.target.value.trim()) {
-            setBikeModelId("");
-        }
+        setBikeModelId(null);
     };
+
 
     const handleChangePart = useCallback((id, field, value) => {
         setParts((prev) =>
@@ -213,8 +231,8 @@ const AddBikeModal = ({
             setError("El nombre de la bici es obligatorio");
             return false;
         }
-        if (!bikeModelId) {
-            setError("Debes seleccionar un modelo de bicicleta");
+        if (!bikeModelName.trim()) {
+            setError("Debes indicar el modelo de la bicicleta");
             return false;
         }
         if (!imagePublicId) {
@@ -247,11 +265,15 @@ const AddBikeModal = ({
                     },
                     body: JSON.stringify({
                         name,
-                        bike_model_id: bikeModelId,
+                        bike_model_id: bikeModelId || null,
+                        model: bikeModelName,
                         specs,
                         image_url: imagePublicId
                             ? `https://res.cloudinary.com/ddx9lg1wd/image/upload/w_400,h_300,c_fill/${imagePublicId}.jpg`
-                            : null,
+                            : isEditing
+                                ? existingBike.image_url
+                                : null,
+
                         video_url: videoUrl,
                         parts,
                     }),
@@ -354,11 +376,8 @@ const AddBikeModal = ({
                                             <div className="dropdown-item loading">
                                                 Cargando modelos...
                                             </div>
-                                        ) : filteredModels.length === 0 ? (
-                                            <div className="dropdown-item empty">
-                                                No se encontraron modelos
-                                            </div>
-                                        ) : (
+                                        ) : filteredModels.length === 0 ? null : (
+
                                             filteredModels.map((model) => (
                                                 <div
                                                     key={model.id}
