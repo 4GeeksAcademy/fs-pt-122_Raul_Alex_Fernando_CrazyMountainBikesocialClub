@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { session } from "../../services/session";
 
 const backendUrl = import.meta.env.VITE_BACKEND_URL;
 
@@ -29,8 +30,7 @@ const LoginForm = () => {
         return;
       }
 
-      localStorage.setItem("token", data.token);
-      localStorage.setItem("user", JSON.stringify(data.user));
+      session.setToken(data.token);
 
       navigate("/home");
     } catch (err) {

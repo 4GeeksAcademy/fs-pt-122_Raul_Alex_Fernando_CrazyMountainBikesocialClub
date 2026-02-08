@@ -1,12 +1,13 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useUser } from "../../context/UserContext";
+import { session } from "../../services/session";
+
 
 const backendUrl = import.meta.env.VITE_BACKEND_URL;
 
 const SignupForm = () => {
   const navigate = useNavigate();
-  const { updateUser } = useUser();
+  
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -45,13 +46,13 @@ const SignupForm = () => {
         return;
       }
 
-      if (loginData.token) {
-        localStorage.setItem("token", loginData.token);
+      if (!loginData.token) {
+        setError("Error al iniciar sesión");
+        return;
       }
 
-      updateUser(loginData.user);
-
-      navigate("/home");
+      session.setToken(loginData.token);
+      navigate("/home");  
 
     } catch (err) {
       setError("Error de conexión");

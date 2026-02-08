@@ -26,41 +26,21 @@ export default function SavedRouteDetail() {
     const map = mapRef.current;
     if (!mapReady || !map || !route) return;
 
-    const parseIfString = (value) => {
-      if (!value) return null;
-      if (typeof value === "string") {
-        try {
-          return JSON.parse(value);
-        } catch {
-          return null;
-        }
-      }
-      return value;
+    const coords = route.preview_coords;
+    if (!coords || !Array.isArray(coords) || coords.length < 2) return;
+
+    const feature = {
+      type: "Feature",
+      properties: {},
+      geometry: {
+        type: "LineString",
+        coordinates: coords,
+      },
     };
-
-    const toFeature = (geo) => {
-      if (!geo) return null;
-
-      if (geo.type === "LineString") {
-        return { type: "Feature", properties: {}, geometry: geo };
-      }
-
-      if (geo.type === "FeatureCollection" && Array.isArray(geo.features) && geo.features[0]) {
-        return geo.features[0];
-      }
-
-      return geo; // si ya es Feature, perfecto
-    };
-
-    // 👇 soporta ambos formatos (geojson o geojsonFeature)
-    const stored = parseIfString(route.geojson ?? route.geojsonFeature);
-    const feature = toFeature(stored);
-
-    const coords = feature?.geometry?.coordinates;
-    if (!Array.isArray(coords) || coords.length < 2) return;
+     
 
     const draw = () => {
-      // Source
+      
       const existingSource = map.getSource(SOURCE_ID);
       if (!existingSource) {
         map.addSource(SOURCE_ID, { type: "geojson", data: feature });
@@ -68,7 +48,7 @@ export default function SavedRouteDetail() {
         existingSource.setData(feature);
       }
 
-      // Layer
+      
       if (!map.getLayer(LAYER_ID)) {
         map.addLayer({
           id: LAYER_ID,
@@ -82,7 +62,6 @@ export default function SavedRouteDetail() {
       map.fitBounds(boundsFromCoords(coords), { padding: 60, duration: 800 });
     };
 
-    // Si el estilo se carga/re-carga, vuelve a dibujar
     const onStyleLoad = () => draw();
 
     if (map.isStyleLoaded()) draw();

@@ -9,6 +9,7 @@ import Garage from "../components/Profile/Garage";
 
 
 import { useFetchWithLoader } from "../hooks/useFetchWithLoader";
+import { session } from "../services/session";
 
 const Home = () => {
   const navigate = useNavigate();
@@ -17,29 +18,26 @@ const Home = () => {
   const fetchWithLoader = useFetchWithLoader();
 
 
-  useEffect(() => {
-    const token = localStorage.getItem("token");
-    if (!token) {
-      navigate("/login");
-    }
-  }, [navigate]);
-
+ 
 
   useEffect(() => {
     const loadData = async () => {
+      const token = session.getToken();
+      
       await fetchWithLoader(
-        `${import.meta.env.VITE_BACKEND_URL}/api/home-data`
+        `${import.meta.env.VITE_BACKEND_URL}/api/home-data`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
       );
     };
 
     loadData();
   }, []);
 
-  const handleLogout = () => {
-    localStorage.clear();
-    navigate("/login");
-  };
-
+  
   return (
     <div className="home">
       <div className="home-content">

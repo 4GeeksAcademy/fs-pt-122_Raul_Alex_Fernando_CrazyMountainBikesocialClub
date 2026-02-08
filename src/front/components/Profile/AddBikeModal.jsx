@@ -1,5 +1,6 @@
 import { useState, useCallback, useEffect } from "react";
 import CloudinaryUploadWidget from "../CloudinaryUploadWidget";
+import { session } from "../../services/session";
 import "../../styles/Profile/addBikeModal.css";
 
 const DEFAULT_PART = {
@@ -145,7 +146,7 @@ const AddBikeModal = ({
         setIsLoadingModels(true);
         setError("");
         try {
-            const token = localStorage.getItem("token");
+            const token = session.getToken();
             const res = await fetch(
                 `${import.meta.env.VITE_BACKEND_URL}/api/bike-models`,
                 {
@@ -251,7 +252,7 @@ const AddBikeModal = ({
         setLoading(true);
 
         try {
-            const token = localStorage.getItem("token");
+            const token = session.getToken();
             const isEditing = !!existingBike;
 
             const res = await fetch(

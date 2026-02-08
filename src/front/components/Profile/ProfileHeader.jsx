@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import SettingsDropdown from "./SettingsDropdown";
+import { session } from "../../services/session";
+
 import "../../styles/header.css";
 
 const ProfileHeader = () => {
@@ -9,7 +11,7 @@ const ProfileHeader = () => {
   const location = useLocation();
 
   const handleLogout = () => {
-    localStorage.clear();
+    session.clear();
     navigate("/login");
   };
 

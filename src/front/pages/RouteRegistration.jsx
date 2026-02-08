@@ -7,6 +7,7 @@ import MapView from "../components/Map/MapView";
 import RouteRegistrationHeader from "../components/RouteRegistration/RouteRegistrationHeader";
 
 import "../styles/routeRegistration.css";
+import { preview } from "vite";
 
 export default function RouteRegistration() {
   const navigate = useNavigate();
@@ -51,7 +52,7 @@ export default function RouteRegistration() {
           distance_km: metrics.distanceKm,
           duration_min: null,
           gain_m: metrics.gainM,
-          geojson: geojsonLine,
+          preview_coords: coords,
           created_at: new Date().toISOString(),
         });
 
