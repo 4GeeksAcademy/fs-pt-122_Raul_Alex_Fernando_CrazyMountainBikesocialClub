@@ -2,13 +2,15 @@
 This module takes care of starting the API Server, Loading the DB and Adding the endpoints
 """
 from flask import Flask, request, jsonify, url_for, Blueprint
-from api.models import db, User, Bike, BikePart, BikeModel
+from api.models import db, User, Bike, BikePart, BikeModel, SavedRoute
 from api.utils import generate_sitemap, APIException, is_valid_email
 from flask_cors import CORS
 from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity
 from api.services.ollama_client import ollama_chat
 from api.services.catalog import load_catalog, rank_bikes
 from api.services.overpass_pois import get_nearby_services_for_route
+from datetime import datetime, timezone
+from uuid import uuid4
 
 
 api = Blueprint('api', __name__)
@@ -123,6 +125,124 @@ def profile():
         return jsonify({"msg": "User not found"}), 404
 
     return jsonify({"msg": "Access granted", "user": user.serialize()}), 200
+
+
+@api.route("/profile", methods=["PUT"])
+@jwt_required()
+def update_profile():
+    user_id = int(get_jwt_identity())
+    user = User.query.get(user_id)
+    if not user:
+        return jsonify({"msg": "User not found"}), 404
+
+    body = request.get_json(silent=True) or {}
+
+    if "name" in body:
+        name = (body.get("name") or "").strip()
+        user.name = name or None
+
+    if "location" in body:
+        location = (body.get("location") or "").strip()
+        user.location = location or None
+
+    if "avatar" in body:
+        avatar = body.get("avatar")
+        user.avatar = avatar if isinstance(avatar, str) and avatar.strip() else None
+
+    db.session.commit()
+    return jsonify({"msg": "Profile updated", "user": user.serialize()}), 200
+
+
+def _parse_created_at(raw_value):
+    if not raw_value:
+        return datetime.now(timezone.utc)
+
+    if isinstance(raw_value, datetime):
+        return raw_value
+
+    if isinstance(raw_value, str):
+        candidate = raw_value.strip()
+        if candidate.endswith("Z"):
+            candidate = candidate[:-1] + "+00:00"
+        try:
+            parsed = datetime.fromisoformat(candidate)
+            if parsed.tzinfo is None:
+                parsed = parsed.replace(tzinfo=timezone.utc)
+            return parsed
+        except ValueError:
+            return datetime.now(timezone.utc)
+
+    return datetime.now(timezone.utc)
+
+
+@api.route("/saved-routes", methods=["GET"])
+@jwt_required()
+def list_saved_routes():
+    user_id = int(get_jwt_identity())
+    routes = SavedRoute.query.filter_by(user_id=user_id).order_by(SavedRoute.created_at.desc()).all()
+    return jsonify([r.serialize() for r in routes]), 200
+
+
+@api.route("/saved-routes/<string:route_id>", methods=["GET"])
+@jwt_required()
+def get_saved_route(route_id):
+    user_id = int(get_jwt_identity())
+    route = SavedRoute.query.filter_by(id=route_id, user_id=user_id).first()
+    if not route:
+        return jsonify({"msg": "Saved route not found"}), 404
+    return jsonify(route.serialize()), 200
+
+
+@api.route("/saved-routes", methods=["POST"])
+@jwt_required()
+def create_or_update_saved_route():
+    user_id = int(get_jwt_identity())
+    body = request.get_json(silent=True) or {}
+
+    route_id = str(body.get("id") or uuid4())
+    name = (body.get("name") or "Ruta guardada").strip()
+    route_type = (body.get("type") or body.get("route_type") or "planned").strip().lower()
+    terrain = (body.get("terrain") or "").strip() or None
+
+    preview_coords = body.get("preview_coords")
+    if preview_coords is not None and not isinstance(preview_coords, list):
+        return jsonify({"msg": "preview_coords must be an array"}), 400
+
+    route = SavedRoute.query.filter_by(id=route_id).first()
+    if route and route.user_id != user_id:
+        route = None
+        route_id = str(uuid4())
+
+    created = route is None
+    if created:
+        route = SavedRoute(id=route_id, user_id=user_id)
+        db.session.add(route)
+
+    route.name = name
+    route.route_type = route_type
+    route.terrain = terrain
+    route.distance_km = body.get("distance_km")
+    route.duration_min = body.get("duration_min")
+    route.gain_m = body.get("gain_m")
+    route.preview_coords = preview_coords
+    route.bbox = body.get("bbox")
+    route.created_at = _parse_created_at(body.get("created_at"))
+
+    db.session.commit()
+    return jsonify(route.serialize()), 201 if created else 200
+
+
+@api.route("/saved-routes/<string:route_id>", methods=["DELETE"])
+@jwt_required()
+def delete_saved_route(route_id):
+    user_id = int(get_jwt_identity())
+    route = SavedRoute.query.filter_by(id=route_id, user_id=user_id).first()
+    if not route:
+        return jsonify({"msg": "Saved route not found"}), 404
+
+    db.session.delete(route)
+    db.session.commit()
+    return jsonify({"msg": "Saved route deleted"}), 200
 
 
 # ============================================
@@ -323,14 +443,13 @@ def update_bike(bike_id):
     
     if "bike_model_id" in body:
         bike_model_id = body["bike_model_id"]
-
-    if bike_model_id:
-        bike_model = BikeModel.query.get(bike_model_id)
-        if not bike_model:
-            return jsonify({"msg": "Modelo de bici no encontrado"}), 404
-        bike.bike_model_id = bike_model_id
-    else:
-        bike.bike_model_id = None
+        if bike_model_id:
+            bike_model = BikeModel.query.get(bike_model_id)
+            if not bike_model:
+                return jsonify({"msg": "Modelo de bici no encontrado"}), 404
+            bike.bike_model_id = bike_model_id
+        else:
+            bike.bike_model_id = None
 
     
     if "specs" in body:

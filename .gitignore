@@ -86,3 +86,4 @@ __pycache__/
 src/instance/
 instance/
 *.db
+desktop.ini

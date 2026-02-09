@@ -1,5 +1,5 @@
 // Import necessary components and functions from react-router-dom.
-
+import React from "react";
 import { createBrowserRouter, createRoutesFromElements, Route, } from "react-router-dom";
 import { Layout } from "./pages/Layout";
 import Home from "./pages/Home";
@@ -12,6 +12,8 @@ import RouteRegistration from "./pages/RouteRegistration.jsx";
 import Explore from "./pages/Explore.jsx";
 import SavedRoutes from "./pages/SavedRoutes";
 import SavedRouteDetail from "./pages/SavedRouteDetail";
+import PrivateRoute from "./components/PrivateRoute";
+
 
 
 export const router = createBrowserRouter(
@@ -30,17 +32,18 @@ export const router = createBrowserRouter(
       <Route path="/login" element={<Login />} />
       <Route path="/signup" element={<Signup />} />
       <Route path="/about" element={<About />} />
-      <Route path="/home" element={<Home />} />
-      <Route path="/profile" element={<Profile />} />
-      <Route path="/route/:routeId" element={<RouteDetail />} />
-      <Route path="/route-registration" element={<RouteRegistration />} />
-      <Route path="/explore" element={<Explore />} />
-      <Route path="/saved-routes" element={<SavedRoutes />} />
-      <Route path="/saved-routes/:routeId" element={<SavedRouteDetail />} />
+      <Route path="/home" element={<PrivateRoute><Home /></PrivateRoute>} />
+      <Route path="/private" element={<PrivateRoute><Home /></PrivateRoute>} />
+      <Route path="/profile" element={<PrivateRoute><Profile /></PrivateRoute>} />
+      <Route path="/route/:routeId" element={<PrivateRoute><RouteDetail /></PrivateRoute>} />
+      <Route path="/route-registration" element={<PrivateRoute><RouteRegistration /></PrivateRoute>} />
+      <Route path="/explore" element={<PrivateRoute><Explore /></PrivateRoute>} />
+      <Route path="/saved-routes" element={<PrivateRoute><SavedRoutes /></PrivateRoute>} />
+      <Route path="/saved-routes/:routeId" element={<PrivateRoute><SavedRouteDetail /></PrivateRoute>} />
 
 
 
-      
+
     </Route>
   )
 );

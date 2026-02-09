@@ -1,3 +1,4 @@
+import { useCallback } from "react";
 import { useLoader } from "../context/loaderContext";
 
 const MIN_LOADING_TIME = 700; // ms (ajústalo a tu gusto)
@@ -5,7 +6,7 @@ const MIN_LOADING_TIME = 700; // ms (ajústalo a tu gusto)
 export const useFetchWithLoader = () => {
   const { showLoader, hideLoader } = useLoader();
 
-  const fetchWithLoader = async (url, options = {}) => {
+  const fetchWithLoader = useCallback(async (url, options = {}) => {
     const startTime = Date.now();
 
     try {
@@ -24,7 +25,7 @@ export const useFetchWithLoader = () => {
         hideLoader();
       }
     }
-  };
+  }, [hideLoader, showLoader]);
 
   return fetchWithLoader;
 };

@@ -1,6 +1,8 @@
+import React from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useUser } from "../../context/UserContext";
 import defaultAvatar from "../../assets/trail.png";
+
 
 import "../../styles/header.css";
 
@@ -9,12 +11,12 @@ export default function MainHeader() {
   const location = useLocation();
 
 
-  const { user } = useUser();
+  const { user, clearUser } = useUser();
 
   const variant = location.pathname === "/home" ? "home" : "profile";
 
   const handleLogout = () => {
-    localStorage.clear();
+    clearUser();
     navigate("/login");
   };
 

@@ -22,9 +22,22 @@ const FeaturedRoutes = () => {
   const [routes, setRoutes] = useState([]);
 
   useEffect(() => {
-    const saved = getRoutes();
-    console.log("ROUTES ===>", saved);
-    setRoutes(saved.slice(0, 5)); // se muestran las 5 rutas destacadas
+    let cancelled = false;
+
+    const load = async () => {
+      try {
+        const saved = await getRoutes();
+        if (!cancelled) setRoutes(saved.slice(0, 5));
+      } catch {
+        if (!cancelled) setRoutes([]);
+      }
+    };
+
+    load();
+
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   return (

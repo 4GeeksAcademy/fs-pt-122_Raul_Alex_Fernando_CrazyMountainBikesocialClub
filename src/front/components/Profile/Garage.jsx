@@ -4,6 +4,9 @@ import AddBikeModal from "./AddBikeModal";
 import BikeDetailModal from "./BikeDetailModal";
 import "../../styles/Profile/garage.css";
 import AiChatDialog from "../AiChatDialog";
+import { session } from "../../services/session";
+
+
 
 const Garage = () => {
   const [bikes, setBikes] = useState([]);
@@ -14,7 +17,7 @@ const Garage = () => {
 
   useEffect(() => {
     const fetchBikes = async () => {
-      const token = localStorage.getItem("token");
+      const token = session.getToken();
       const res = await fetch(
         import.meta.env.VITE_BACKEND_URL + "/api/bikes",
         {
@@ -54,7 +57,7 @@ const Garage = () => {
     }
 
     try {
-      const token = localStorage.getItem("token");
+      const token = session.getToken();
       const res = await fetch(
         `${import.meta.env.VITE_BACKEND_URL}/api/bikes/${bikeId}`,
         {

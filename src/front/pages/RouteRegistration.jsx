@@ -1,3 +1,4 @@
+import React from "react";
 import { useNavigate } from "react-router-dom";
 import { useEffect, useRef, useState } from "react";
 import { saveRoute } from "../services/routesStorage";
@@ -43,7 +44,7 @@ export default function RouteRegistration() {
           }
         };
 
-        saveRoute({
+        const payload = {
           id: makeId(),
           type: "recorded",
           name: routeName,
@@ -51,12 +52,18 @@ export default function RouteRegistration() {
           distance_km: metrics.distanceKm,
           duration_min: null,
           gain_m: metrics.gainM,
-          geojson: geojsonLine,
+          preview_coords: coords,
           created_at: new Date().toISOString(),
-        });
+        };
 
-        setRouteSaved(true);
-        setTimeout(() => setRouteSaved(false), 2500);
+        saveRoute(payload)
+          .then(() => {
+            setRouteSaved(true);
+            setTimeout(() => setRouteSaved(false), 2500);
+          })
+          .catch((error) => {
+            console.error("Error saving recorded route:", error);
+          });
 
       }
     }
