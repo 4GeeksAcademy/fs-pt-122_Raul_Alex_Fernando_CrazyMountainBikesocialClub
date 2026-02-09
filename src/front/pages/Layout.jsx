@@ -1,33 +1,37 @@
+import React from "react";
 import { Outlet, useLocation, useNavigate } from "react-router-dom";
+import { useEffect } from "react";
 import Footer from "../components/Footer";
 import { Loader } from "../components/Loader/Loader";
 import { useLoader } from "../context/loaderContext";
-import "../styles/footer.css";
 import MainHeader from "../components/Header/MainHeader";
-import { useEffect, useState } from "react";
 import ScrollToTop from "../components/ScrollToTop";
+import { session } from "../services/session";
+import { useUser } from "../context/UserContext";
+import "../styles/footer.css";
 
 export const Layout = () => {
   const { isLoading } = useLoader();
+  const { isUserReady } = useUser();
   const location = useLocation();
   const navigate = useNavigate();
 
-  const [authLoading, setAuthLoading] = useState(true);
-  const [user, setUser] = useState(null);
+  const isLoggedIn = session.isLoggedIn();
 
   useEffect(() => {
-    const storedUser = JSON.parse(localStorage.getItem("user"));
+    if (!isUserReady) return;
 
-    setUser(storedUser);
-
-    if (storedUser && location.pathname === "/") {
-      navigate("/home");
+    if (location.pathname === "/") {
+      navigate(isLoggedIn ? "/home" : "/login", { replace: true });
+      return;
     }
 
-    setAuthLoading(false);
-  }, [location.pathname]);
+    if (isLoggedIn && (location.pathname === "/login" || location.pathname === "/signup")) {
+      navigate("/home", { replace: true });
+    }
+  }, [isLoggedIn, isUserReady, location.pathname, navigate]);
 
-  if (authLoading) return null;
+  if (!isUserReady) return null;
 
   const hideHeader =
     location.pathname === "/login" ||
@@ -43,7 +47,7 @@ export const Layout = () => {
       {isLoading && <Loader />}
 
       <div className={`app-root ${isLoading ? "is-loading" : ""}`}>
-        {user && !hideHeader && <MainHeader />}
+        {isLoggedIn && !hideHeader && <MainHeader />}
 
         <ScrollToTop location={location}>
           <Outlet />

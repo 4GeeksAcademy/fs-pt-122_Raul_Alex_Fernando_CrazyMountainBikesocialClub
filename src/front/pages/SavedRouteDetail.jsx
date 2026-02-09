@@ -1,9 +1,9 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 
 import MapView from "../components/Map/MapView";
 import RouteRegistrationBottomNav from "../components/RouteRegistration/RouteRegistrationBottomNav";
-import { getRoutes } from "../services/routesStorage";
+import { getRouteById } from "../services/routesStorage";
 import { boundsFromCoords } from "../utils/mapBounds";
 
 const SOURCE_ID = "saved-route-src";
@@ -16,10 +16,29 @@ export default function SavedRouteDetail() {
 
   const mapRef = useRef(null);
   const [mapReady, setMapReady] = useState(false);
+  const [route, setRoute] = useState(null);
+  const [loading, setLoading] = useState(true);
 
-  const route = useMemo(() => {
-    const all = getRoutes();
-    return all.find((r) => String(r.id) === String(routeId));
+  useEffect(() => {
+    let cancelled = false;
+
+    const loadRoute = async () => {
+      try {
+        setLoading(true);
+        const found = await getRouteById(routeId);
+        if (!cancelled) setRoute(found);
+      } catch {
+        if (!cancelled) setRoute(null);
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    };
+
+    loadRoute();
+
+    return () => {
+      cancelled = true;
+    };
   }, [routeId]);
 
   useEffect(() => {
@@ -73,6 +92,14 @@ export default function SavedRouteDetail() {
       map.off("style.load", onStyleLoad);
     };
   }, [route, mapReady]);
+
+  if (loading) {
+    return (
+      <div style={{ padding: 16 }}>
+        <h2>Loading route...</h2>
+      </div>
+    );
+  }
 
   if (!route) {
     return (

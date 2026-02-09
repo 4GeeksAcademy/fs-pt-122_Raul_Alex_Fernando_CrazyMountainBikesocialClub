@@ -1,5 +1,5 @@
 // Import necessary components and functions from react-router-dom.
-
+import React from "react";
 import { createBrowserRouter, createRoutesFromElements, Route, } from "react-router-dom";
 import { Layout } from "./pages/Layout";
 import Home from "./pages/Home";
@@ -33,6 +33,7 @@ export const router = createBrowserRouter(
       <Route path="/signup" element={<Signup />} />
       <Route path="/about" element={<About />} />
       <Route path="/home" element={<PrivateRoute><Home /></PrivateRoute>} />
+      <Route path="/private" element={<PrivateRoute><Home /></PrivateRoute>} />
       <Route path="/profile" element={<PrivateRoute><Profile /></PrivateRoute>} />
       <Route path="/route/:routeId" element={<PrivateRoute><RouteDetail /></PrivateRoute>} />
       <Route path="/route-registration" element={<PrivateRoute><RouteRegistration /></PrivateRoute>} />
@@ -42,7 +43,7 @@ export const router = createBrowserRouter(
 
 
 
-      
+
     </Route>
   )
 );

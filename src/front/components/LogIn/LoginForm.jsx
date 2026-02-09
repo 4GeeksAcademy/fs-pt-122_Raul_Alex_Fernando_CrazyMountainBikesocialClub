@@ -1,11 +1,13 @@
-import { useState } from "react";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { session } from "../../services/session";
+import { useUser } from "../../context/UserContext";
 
 const backendUrl = import.meta.env.VITE_BACKEND_URL;
 
 const LoginForm = () => {
   const navigate = useNavigate();
+  const { updateUser } = useUser();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState(null);
@@ -26,16 +28,23 @@ const LoginForm = () => {
       const data = await resp.json();
 
       if (!resp.ok) {
-        setError(data.msg || "Credenciales inválidas");
+        setError(data?.msg || "Credenciales invalidas");
+        return;
+      }
+
+      if (!data?.token) {
+        setError("Respuesta de login invalida");
         return;
       }
 
       session.setToken(data.token);
+      if (data.user) {
+        updateUser(data.user);
+      }
 
-      navigate("/home");
-    } catch (err) {
-      console.error(err);
-      setError("Error de conexión");
+      navigate("/home", { replace: true });
+    } catch {
+      setError("Error de conexion");
     } finally {
       setLoading(false);
     }
@@ -43,7 +52,7 @@ const LoginForm = () => {
 
   return (
     <form className="signup-form" onSubmit={handleSubmit}>
-      <label>Correo electrónico</label>
+      <label>Correo electronico</label>
       <div className="input-wrapper">
         <input
           type="email"
@@ -55,11 +64,11 @@ const LoginForm = () => {
         />
       </div>
 
-      <label>Contraseña</label>
+      <label>Contrasena</label>
       <div className="input-wrapper">
         <input
           type="password"
-          placeholder="••••••••"
+          placeholder="********"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           required
@@ -70,7 +79,7 @@ const LoginForm = () => {
       {error && <div className="error-message">{error}</div>}
 
       <button type="submit" className="signup-button" disabled={loading}>
-        {loading ? "Entrando..." : "INICIAR SESIÓN"}
+        {loading ? "Entrando..." : "INICIAR SESION"}
       </button>
     </form>
   );

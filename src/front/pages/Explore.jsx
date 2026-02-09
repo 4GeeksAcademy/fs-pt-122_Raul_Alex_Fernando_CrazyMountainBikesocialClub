@@ -13,7 +13,7 @@ import { geocodePlace, reverseGeocodeLocality } from "../services/geocoding";
 import {upsertNearbyServicesLayers,removeNearbyServicesLayers,} from "../utils/mapPois";
 
 import "../styles/routeRegistration.css";
-import { preview } from "vite";
+
 
 export default function Explore() {
   const navigate = useNavigate();
@@ -177,7 +177,7 @@ export default function Explore() {
 
     const plannedRoute = {
       id: crypto.randomUUID?.() ?? `${Date.now()}`,
-      type: "route",
+      type: "planned",
       name: autoName,
       terrain: activeFilter,
       distance_km: summary.distanceKm,
@@ -197,7 +197,14 @@ export default function Explore() {
       created_at: new Date().toISOString(),
     };
 
-    saveRoute(plannedRoute);
+    try {
+      await saveRoute(plannedRoute);
+    } catch (e) {
+      setSavedMsg(`Error guardando ruta: ${String(e?.message || e)}`);
+      window.clearTimeout(savePlannedRoute._t);
+      savePlannedRoute._t = window.setTimeout(() => setSavedMsg(null), 2200);
+      return;
+    }
 
     setHasStarted(false);
     setHasSaved(true);

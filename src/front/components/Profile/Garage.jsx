@@ -6,6 +6,8 @@ import "../../styles/Profile/garage.css";
 import AiChatDialog from "../AiChatDialog";
 import { session } from "../../services/session";
 
+
+
 const Garage = () => {
   const [bikes, setBikes] = useState([]);
   const [openModal, setOpenModal] = useState(false);

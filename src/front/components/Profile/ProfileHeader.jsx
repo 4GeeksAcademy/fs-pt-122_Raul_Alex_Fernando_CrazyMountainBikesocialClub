@@ -1,7 +1,7 @@
-import { useState } from "react";
+import React, { useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import SettingsDropdown from "./SettingsDropdown";
-import { session } from "../../services/session";
+import { useUser } from "../../context/UserContext";
 
 import "../../styles/header.css";
 
@@ -9,9 +9,10 @@ const ProfileHeader = () => {
   const [open, setOpen] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
+  const { clearUser } = useUser();
 
   const handleLogout = () => {
-    session.clear();
+    clearUser();
     navigate("/login");
   };
 

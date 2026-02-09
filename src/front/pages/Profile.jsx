@@ -1,12 +1,19 @@
 import { useState, useRef, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { useUser } from "../context/UserContext";
+import { session } from "../services/session";
 import Garage from "../components/Profile/Garage";
 import defaultAvatar from "../assets/trail.png";
 
+const backendUrl = import.meta.env.VITE_BACKEND_URL;
+
 const Profile = () => {
-  const { user, updateUser } = useUser();
+  const navigate = useNavigate();
+  const { user, updateUser, clearUser } = useUser();
   const [draftUser, setDraftUser] = useState(user);
   const [saved, setSaved] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState(null);
   const fileInputRef = useRef();
 
   
@@ -31,10 +38,52 @@ const Profile = () => {
     reader.readAsDataURL(file);
   };
 
-  const saveProfile = () => {
-    updateUser(draftUser);
-    setSaved(true);
-    setTimeout(() => setSaved(false), 2000);
+  const saveProfile = async () => {
+    const token = session.getToken();
+    if (!token) {
+      clearUser();
+      navigate("/login", { replace: true });
+      return;
+    }
+
+    setSaving(true);
+    setError(null);
+
+    try {
+      const resp = await fetch(`${backendUrl}/api/profile`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          name: draftUser?.name ?? "",
+          location: draftUser?.location ?? "",
+          avatar: draftUser?.avatar ?? null,
+        }),
+      });
+
+      const data = await resp.json();
+
+      if (resp.status === 401) {
+        clearUser();
+        navigate("/login", { replace: true });
+        return;
+      }
+
+      if (!resp.ok) {
+        setError(data?.msg || "No se pudo guardar el perfil");
+        return;
+      }
+
+      updateUser(data?.user || draftUser);
+      setSaved(true);
+      setTimeout(() => setSaved(false), 2000);
+    } catch {
+      setError("Error de conexion al guardar perfil");
+    } finally {
+      setSaving(false);
+    }
   };
 
   return (
@@ -130,10 +179,17 @@ const Profile = () => {
               <button
                 className="ui-btn ui-btn--secondary"
                 onClick={saveProfile}
+                disabled={saving}
               >
-                Guardar perfil
+                {saving ? "Guardando..." : "Guardar perfil"}
               </button>
             </div>
+
+            {error && (
+              <p style={{ color: "#ef4444", marginTop: 12 }}>
+                {error}
+              </p>
+            )}
 
             {saved && (
               <p style={{ color: "#22c55e", marginTop: 12 }}>

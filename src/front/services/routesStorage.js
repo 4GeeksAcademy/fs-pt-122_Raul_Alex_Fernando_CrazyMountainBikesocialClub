@@ -1,16 +1,6 @@
-const KEY = "trail_routes_v2";
-const LIMIT = 50;
-const PREVIEW_POINTS = 80;
+import { session } from "./session";
 
-const safeParse = (raw, fallback) => {
-  try {
-    const parsed = JSON.parse(raw);
-    return parsed ?? fallback;
-  } catch (e) {
-    console.error("Error parsing JSON:", e);
-    return fallback;
-  }
-};
+const backendUrl = import.meta.env.VITE_BACKEND_URL;
 
 const normalizeRoute = (route) => {
   if (!route || typeof route !== "object") return null;
@@ -24,7 +14,6 @@ const normalizeRoute = (route) => {
     route.date ||
     new Date().toISOString();
 
-  
   const coords =
     route.preview_coords ||
     route.coords ||
@@ -36,55 +25,77 @@ const normalizeRoute = (route) => {
 
   return {
     id,
+    type: route.type || route.route_type || "planned",
     name,
+    terrain: route.terrain || null,
     distance_km: route.distance_km ?? route.distance ?? null,
     duration_min: route.duration_min ?? route.duration ?? null,
+    gain_m: route.gain_m ?? null,
     bbox: route.bbox ?? null,
-
-    
-    preview_coords: Array.isArray(coords)
-      ? coords.slice(0, PREVIEW_POINTS)
-      : null,
-
-    createdAt,
+    preview_coords: Array.isArray(coords) ? coords : null,
+    created_at: createdAt,
   };
 };
 
+const apiFetch = async (path, options = {}) => {
+  const token = session.getToken();
+  if (!token) throw new Error("No autenticado");
+  if (!backendUrl) throw new Error("Falta VITE_BACKEND_URL");
 
-export const getRoutes = () => {
-  const raw = localStorage.getItem(KEY);
-  const routes = safeParse(raw, []);
-  return Array.isArray(routes) ? routes : [];
-};
+  const headers = {
+    Authorization: `Bearer ${token}`,
+    ...(options.body ? { "Content-Type": "application/json" } : {}),
+    ...(options.headers || {}),
+  };
 
-export const saveRoute = (route) => {
-  const summary = normalizeRoute(route);
-  if (!summary) return getRoutes();
+  const resp = await fetch(`${backendUrl}${path}`, {
+    ...options,
+    headers,
+  });
 
-  const prev = getRoutes();
-  const withoutDup = prev.filter((r) => r?.id !== summary.id);
-  const next = [summary, ...withoutDup].slice(0, LIMIT);
-
+  let data = null;
   try {
-    localStorage.setItem(KEY, JSON.stringify(next));
-    return next;
+    data = await resp.json();
   } catch {
-    const trimmed = next.slice(0, 10);
-    localStorage.setItem(KEY, JSON.stringify(trimmed));
-    return trimmed;
+    data = null;
   }
+
+  if (!resp.ok) {
+    throw new Error(data?.msg || `HTTP ${resp.status}`);
+  }
+
+  return data;
 };
 
-
-export const deleteRoute = (routeId) => {
-  const prev = getRoutes();
-  const next = prev.filter((r) => r?.id !== routeId);
-  localStorage.setItem(KEY, JSON.stringify(next));
-  return next;
+export const getRoutes = async () => {
+  const data = await apiFetch("/api/saved-routes");
+  return Array.isArray(data) ? data : [];
 };
 
+export const getRouteById = async (routeId) => {
+  if (!routeId) return null;
+  return apiFetch(`/api/saved-routes/${encodeURIComponent(routeId)}`);
+};
 
-export const clearRoutes = () => {
-  localStorage.removeItem(KEY);
+export const saveRoute = async (route) => {
+  const summary = normalizeRoute(route);
+  if (!summary) return null;
+
+  return apiFetch("/api/saved-routes", {
+    method: "POST",
+    body: JSON.stringify(summary),
+  });
+};
+
+export const deleteRoute = async (routeId) => {
+  if (!routeId) return;
+  await apiFetch(`/api/saved-routes/${encodeURIComponent(routeId)}`, {
+    method: "DELETE",
+  });
+};
+
+export const clearRoutes = async () => {
+  const routes = await getRoutes();
+  await Promise.all(routes.map((route) => deleteRoute(route.id)));
   return [];
 };
