@@ -20,24 +20,24 @@ export default function SavedRouteDetail() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    let cancelled = false;
+    const cancelled = { current: false };
 
     const loadRoute = async () => {
       try {
         setLoading(true);
         const found = await getRouteById(routeId);
-        if (!cancelled) setRoute(found);
+        if (!cancelled.current) setRoute(found);
       } catch {
-        if (!cancelled) setRoute(null);
+        if (!cancelled.current) setRoute(null);
       } finally {
-        if (!cancelled) setLoading(false);
+        if (!cancelled.current) setLoading(false);
       }
     };
 
     loadRoute();
 
     return () => {
-      cancelled = true;
+      cancelled.current = true;
     };
   }, [routeId]);
 

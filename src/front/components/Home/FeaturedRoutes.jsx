@@ -1,6 +1,6 @@
 import "../../styles/featuredRoutes.css";
 import { useNavigate } from "react-router-dom";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { getRoutes } from "../../services/routesStorage.js";
 
 const genericImages = [
@@ -20,23 +20,24 @@ const genericImages = [
 const FeaturedRoutes = () => {
   const navigate = useNavigate();
   const [routes, setRoutes] = useState([]);
+  const cancelledRef = useRef(false);
 
   useEffect(() => {
-    let cancelled = false;
+    cancelledRef.current = false;
 
     const load = async () => {
       try {
         const saved = await getRoutes();
-        if (!cancelled) setRoutes(saved.slice(0, 5));
+        if (!cancelledRef.current) setRoutes(saved.slice(0, 5));
       } catch {
-        if (!cancelled) setRoutes([]);
+        if (!cancelledRef.current) setRoutes([]);
       }
     };
 
     load();
 
     return () => {
-      cancelled = true;
+      cancelledRef.current = true;
     };
   }, []);
 

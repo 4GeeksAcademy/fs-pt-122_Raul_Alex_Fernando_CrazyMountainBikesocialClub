@@ -11,15 +11,15 @@ export default function SavedRoutes() {
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    let cancelled = false;
+    const cancelled = { current: false };
 
     const loadRoutes = async () => {
       try {
         setError(null);
         const next = await getRoutes();
-        if (!cancelled) setRoutes(next);
+        if (!cancelled.current) setRoutes(next);
       } catch (e) {
-        if (!cancelled) {
+        if (!cancelled.current) {
           setRoutes([]);
           setError(String(e?.message || e));
         }
@@ -29,7 +29,7 @@ export default function SavedRoutes() {
     loadRoutes();
 
     return () => {
-      cancelled = true;
+      cancelled.current = true;
     };
   }, [location.key]);
 
