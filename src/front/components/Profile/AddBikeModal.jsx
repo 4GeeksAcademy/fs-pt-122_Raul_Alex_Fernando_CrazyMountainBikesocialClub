@@ -1,4 +1,6 @@
 import { useState, useCallback, useEffect } from "react";
+import { createBike, updateBike } from "../../services/bikeService";
+import { getBikeModels } from "../../services/bikeModelService";
 import CloudinaryUploadWidget from "../CloudinaryUploadWidget";
 import "../../styles/Profile/addBikeModal.css";
 
@@ -145,19 +147,21 @@ const AddBikeModal = ({
         setIsLoadingModels(true);
         setError("");
         try {
-            const token = localStorage.getItem("token");
-            const res = await fetch(
-                `${import.meta.env.VITE_BACKEND_URL}/api/bike-models`,
-                {
-                    headers: {
-                        Authorization: `Bearer ${token}`,
-                    },
-                }
-            );
+            const fetchBikeModels = async () => {
+                setIsLoadingModels(true);
+                setError("");
 
-            if (!res.ok) {
-                throw new Error("Error al cargar los modelos");
-            }
+                try {
+                    const data = await getBikeModels();
+                    setBikeModels(data);
+                    setFilteredModels(data);
+                } catch (err) {
+                    setError("No se pudieron cargar los modelos de bicicletas");
+                    console.error(err);
+                } finally {
+                    setIsLoadingModels(false);
+                }
+            };
 
             const data = await res.json();
             setBikeModels(data);
@@ -250,49 +254,26 @@ const AddBikeModal = ({
 
         setLoading(true);
 
+        const payload = {
+            name,
+            bike_model_id: bikeModelId || null,
+            model: bikeModelName,
+            specs,
+            image_url: imagePublicId
+                ? `https://res.cloudinary.com/ddx9lg1wd/image/upload/w_400,h_300,c_fill/${imagePublicId}.jpg`
+                : existingBike?.image_url || null,
+            video_url: videoUrl,
+            parts,
+        };
+
         try {
-            const token = localStorage.getItem("token");
-            const isEditing = !!existingBike;
+            let bike;
 
-            const res = await fetch(
-                `${import.meta.env.VITE_BACKEND_URL}/api/bikes${isEditing ? `/${existingBike.id}` : ""
-                }`,
-                {
-                    method: isEditing ? "PUT" : "POST",
-                    headers: {
-                        "Content-Type": "application/json",
-                        Authorization: `Bearer ${token}`,
-                    },
-                    body: JSON.stringify({
-                        name,
-                        bike_model_id: bikeModelId || null,
-                        model: bikeModelName,
-                        specs,
-                        image_url: imagePublicId
-                            ? `https://res.cloudinary.com/ddx9lg1wd/image/upload/w_400,h_300,c_fill/${imagePublicId}.jpg`
-                            : isEditing
-                                ? existingBike.image_url
-                                : null,
-
-                        video_url: videoUrl,
-                        parts,
-                    }),
-                }
-            );
-
-            if (!res.ok) {
-                const errorData = await res.json();
-                throw new Error(
-                    errorData.msg ||
-                    `Error al ${isEditing ? "actualizar" : "guardar"} la bici`
-                );
-            }
-
-            const bike = await res.json();
-
-            if (isEditing) {
+            if (existingBike) {
+                bike = await updateBike(existingBike.id, payload);
                 onBikeUpdated(bike);
             } else {
+                bike = await createBike(payload);
                 onBikeCreated(bike);
             }
 
@@ -305,6 +286,7 @@ const AddBikeModal = ({
             setLoading(false);
         }
     };
+
 
     const handleClose = () => {
         resetForm();

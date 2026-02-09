@@ -2,8 +2,10 @@ import { useEffect, useState } from "react";
 import BikeCard from "./BikeCard";
 import AddBikeModal from "./AddBikeModal";
 import BikeDetailModal from "./BikeDetailModal";
-import "../../styles/Profile/garage.css";
 import AiChatDialog from "../AiChatDialog";
+import "../../styles/Profile/garage.css";
+
+import { getBikes, deleteBike } from "../../services/bikeService";
 
 const Garage = () => {
   const [bikes, setBikes] = useState([]);
@@ -13,19 +15,9 @@ const Garage = () => {
   const [bikeToView, setBikeToView] = useState(null);
 
   useEffect(() => {
-    const fetchBikes = async () => {
-      const token = localStorage.getItem("token");
-      const res = await fetch(
-        import.meta.env.VITE_BACKEND_URL + "/api/bikes",
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
-      );
-      if (!res.ok) return;
-      const data = await res.json();
-      setBikes(data);
-    };
-    fetchBikes();
+    getBikes()
+      .then(setBikes)
+      .catch(err => console.error("Error cargando bikes:", err));
   }, []);
 
   const handleBikeCreated = (bike) => {
@@ -34,7 +26,7 @@ const Garage = () => {
 
   const handleBikeUpdated = (updatedBike) => {
     setBikes(prev =>
-      prev.map(b => b.id === updatedBike.id ? updatedBike : b)
+      prev.map(b => (b.id === updatedBike.id ? updatedBike : b))
     );
   };
 
@@ -54,24 +46,10 @@ const Garage = () => {
     }
 
     try {
-      const token = localStorage.getItem("token");
-      const res = await fetch(
-        `${import.meta.env.VITE_BACKEND_URL}/api/bikes/${bikeId}`,
-        {
-          method: "DELETE",
-          headers: {
-            Authorization: `Bearer ${token}`
-          },
-        }
-      );
-
-      if (!res.ok) {
-        throw new Error("Error al eliminar la bici");
-      }
-
+      await deleteBike(bikeId);
       setBikes(prev => prev.filter(b => b.id !== bikeId));
     } catch (error) {
-      console.error("Error:", error);
+      console.error(error);
       alert("No se pudo eliminar la bici");
     }
   };
@@ -87,7 +65,10 @@ const Garage = () => {
         <h2>Mi Garaje</h2>
         <div className="header-actions">
           <AiChatDialog floating={false} />
-          <button className="add-bike ui-btn ui-btn--primary" onClick={() => setOpenModal(true)}>
+          <button
+            className="add-bike ui-btn ui-btn--primary"
+            onClick={() => setOpenModal(true)}
+          >
             + Añadir Bici
           </button>
         </div>
